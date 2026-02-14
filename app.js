@@ -118,44 +118,32 @@ function applyUIScale(){
   const baseW = parseFloat(rs.getPropertyValue('--base-w')) || 2048;
   const baseH = parseFloat(rs.getPropertyValue('--base-h')) || 974;
 
-  // ピンチズーム時に visual viewport の変化をそのまま使うと
-  // 「ブラウザ側ズーム + アプリ側scale」が二重で効いて盤面が崩れるため、
-  // 実効レイアウトサイズ（width * scale）で正規化して扱う。
+  // ピンチズーム中は visual viewport が細かく変動し、
+  // stage位置/スケールの再計算で盤面が飛ぶことがある。
+  // そのため zoom 中は最後の安定値を維持する。
   const vv = window.visualViewport;
   const vvScale = (vv && Number.isFinite(vv.scale) && vv.scale > 0) ? vv.scale : 1;
-  const isPinchZooming = vvScale !== 1;
+  const isPinchZooming = vvScale > 1.001;
+  if(isPinchZooming){
+    document.documentElement.style.setProperty('--ui-scale', String(__lastStableUIScale || 1));
+    document.documentElement.style.setProperty('--stage-left', (__lastStableStageLeft || 0) + 'px');
+    document.documentElement.style.setProperty('--stage-top', (__lastStableStageTop || 0) + 'px');
+    return;
+  }
 
   let w = document.documentElement.clientWidth || window.innerWidth || baseW;
   let h = document.documentElement.clientHeight || window.innerHeight || baseH;
-  if(vv && Number.isFinite(vv.width) && Number.isFinite(vv.height)){
-    w = vv.width * vvScale;
-    h = vv.height * vvScale;
-  }
 
   let s = Math.min(1, w/baseW, h/baseH);
   if(!isFinite(s) || s<=0) s = 1;
-
-  // ズーム中は安定値を維持して再レイアウトを抑制（ちらつき・サイズ飛び防止）
-  if(isPinchZooming && __lastStableUIScale > 0){
-    s = __lastStableUIScale;
-  }else{
-    __lastStableUIScale = s;
-  }
+  __lastStableUIScale = s;
 
   __uiScale = s;
   document.documentElement.style.setProperty('--ui-scale', String(s));
   let stageLeft = Math.max(0, (w - baseW * s) / 2);
   let stageTop  = 0;
-
-  // ピンチズーム中は viewport の小刻みな変化で左右に揺れやすいため、
-  // 直前の安定した配置を保持してガクつきを抑える。
-  if(isPinchZooming){
-    stageLeft = __lastStableStageLeft;
-    stageTop = __lastStableStageTop;
-  }else{
-    __lastStableStageLeft = stageLeft;
-    __lastStableStageTop = stageTop;
-  }
+  __lastStableStageLeft = stageLeft;
+  __lastStableStageTop = stageTop;
 
   document.documentElement.style.setProperty('--stage-left', stageLeft + 'px');
   document.documentElement.style.setProperty('--stage-top', stageTop + 'px');

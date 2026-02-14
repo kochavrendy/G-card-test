@@ -215,11 +215,6 @@
   .builderFooterToggle{width:30px;height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.15);color:#fff;cursor:pointer;display:grid;place-items:center;padding:0;transition:transform .15s ease;}
   #builderFooterBody{margin-top:8px;display:flex;justify-content:flex-start;align-items:flex-start;gap:10px;flex-wrap:wrap;overflow:hidden;max-height:600px;opacity:1;transition:max-height .18s ease, opacity .18s ease, margin .18s ease;}
   #builderFooter textarea{flex:1 1 320px;width:auto;min-width:260px;height:54px;background:#000;color:#eee;border:1px solid #555;border-radius:4px;padding:4px;font-size:11px;}
-  .decklogStatus{flex:1 1 100%;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.45;background:rgba(0,0,0,.25);}
-  .decklogStatus.hidden{display:none;}
-  .decklogStatus.error{border-color:#b43f3f;background:rgba(120,10,10,.25);color:#ffdede;}
-  .decklogStatus.warn{border-color:#b38b2a;background:rgba(120,95,10,.22);color:#fff0c7;}
-  .decklogStatus.ok{border-color:#2f8f4f;background:rgba(10,90,40,.25);color:#d8ffe6;}
   #builderFooter button{background:#444;border:1px solid #666;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;}
   #builderFooter button:hover{background:#666;}
   .builderFooterSection.collapsed #builderFooterBody{max-height:0;opacity:0;margin-top:0;}
@@ -294,6 +289,9 @@
   #previewInfo .pvSub{font-size:16px;opacity:.86;margin:0 0 16px 0;line-height:1.45;}
   #previewInfo .pvRow{margin:10px 0;font-size:17px;line-height:1.55;}
   #previewInfo .pvKey{opacity:.78;margin-right:6px;font-weight:800;}
+#previewInfo .pvRowMeta{display:flex;flex-wrap:wrap;gap:14px 18px;}
+#previewInfo .pvItem{display:inline-flex;align-items:center;gap:6px;min-width:0;}
+#previewInfo .pvVal{display:inline-flex;align-items:center;gap:4px;min-width:0;}
   #previewInfo .pvTags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
   #previewInfo .pvTag{font-size:16px;padding:5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,20);background:rgba(255,255,255,0.90);color:#111;}
   #previewInfo .pvText{white-space:pre-wrap;font-size:17px;line-height:1.68;margin-top:12px;padding-top:12px;border-top:1px dashed rgba(255,255,255,14);}
@@ -831,6 +829,30 @@ body.flipLayout .zone[data-zone-id="slot5"] .areaUI{
 *::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.14); border-radius: 999px; border:2px solid rgba(0,0,0,.25); }
 *::-webkit-scrollbar-track{ background: rgba(0,0,0,.18); border-radius: 999px; }
 
+
+@media (max-width: 768px) and (orientation: portrait){
+  #previewPanel{
+    flex-direction:column;
+    width:min(96vw, 560px);
+    height:min(calc(92vh - var(--previewSafeTop)), 920px);
+  }
+  #previewLeft{
+    max-width:100%;
+    height:auto;
+    max-height:56vh;
+    margin:0 auto;
+  }
+  #previewInfo{
+    min-width:0;
+    height:auto;
+    flex:1 1 auto;
+  }
+  #previewInfo .pvRowMeta{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+}
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; animation: none !important; }
 }

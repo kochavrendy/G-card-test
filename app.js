@@ -110,14 +110,36 @@ const monsterCounterEl=document.getElementById('monsterCounter');
 const toolbar=document.getElementById('toolbar');
 // ===== Fixed UI size + auto scale =====
 let __uiScale = 1;
+let __lastStableUIScale = 1;
 function applyUIScale(){
   const rs = getComputedStyle(document.documentElement);
   const baseW = parseFloat(rs.getPropertyValue('--base-w')) || 2048;
   const baseH = parseFloat(rs.getPropertyValue('--base-h')) || 974;
-  const w = window.innerWidth || document.documentElement.clientWidth || baseW;
-  const h = window.innerHeight || document.documentElement.clientHeight || baseH;
+
+  // ピンチズーム時に visual viewport の変化をそのまま使うと
+  // 「ブラウザ側ズーム + アプリ側scale」が二重で効いて盤面が崩れるため、
+  // 実効レイアウトサイズ（width * scale）で正規化して扱う。
+  const vv = window.visualViewport;
+  const vvScale = (vv && Number.isFinite(vv.scale) && vv.scale > 0) ? vv.scale : 1;
+  const isPinchZooming = vvScale !== 1;
+
+  let w = document.documentElement.clientWidth || window.innerWidth || baseW;
+  let h = document.documentElement.clientHeight || window.innerHeight || baseH;
+  if(vv && Number.isFinite(vv.width) && Number.isFinite(vv.height)){
+    w = vv.width * vvScale;
+    h = vv.height * vvScale;
+  }
+
   let s = Math.min(1, w/baseW, h/baseH);
   if(!isFinite(s) || s<=0) s = 1;
+
+  // ズーム中は安定値を維持して再レイアウトを抑制（ちらつき・サイズ飛び防止）
+  if(isPinchZooming && __lastStableUIScale > 0){
+    s = __lastStableUIScale;
+  }else{
+    __lastStableUIScale = s;
+  }
+
   __uiScale = s;
   document.documentElement.style.setProperty('--ui-scale', String(s));
   const stageLeft = Math.max(0, (w - baseW * s) / 2);
@@ -134,6 +156,10 @@ function getPointerBoardPos(ev){
 }
 applyUIScale();
 window.addEventListener('resize', applyUIScale);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', applyUIScale);
+  window.visualViewport.addEventListener('scroll', applyUIScale);
+}
 
 const btnFlip=document.getElementById('btnFlip');
 const btnRemove=document.getElementById('btnRemove'); // [patch]

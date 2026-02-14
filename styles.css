@@ -1198,14 +1198,15 @@ body.soloActive #toolbar{ right:auto !important; }
   #toolbar button,#toolbar label{ min-height:32px; }
   #viewerPanel{ width:96vw; height:90vh; padding:10px 12px; }
   #viewerSearch{ width:100%; }
-  #builder{ align-items:stretch; justify-content:stretch; }
+  #builder{ align-items:stretch; justify-content:stretch; overflow:auto; }
   #builderPanel{
     width:100vw;
-    height:100vh;
+    min-height:100dvh;
+    height:auto;
     border-radius:0;
     padding:8px;
   }
-  #builderMain{ gap:8px; overflow:hidden; }
+  #builderMain{ gap:8px; overflow:auto; min-height:0; -webkit-overflow-scrolling:touch; }
   #libPane,#deckPane{ min-height:0; }
   #libList{ gap:10px; padding:8px; }
   .libCard{ width:132px; }
@@ -1214,7 +1215,7 @@ body.soloActive #toolbar{ right:auto !important; }
 
   /* 現在のデッキ欄の末尾が下部バーに隠れないよう余白を確保 */
   #deckPane{ padding-bottom:8px; }
-  #deckScroll{ padding-bottom:72px; }
+  #deckScroll{ padding-bottom:72px; -webkit-overflow-scrolling:touch; }
 
   /* スマホで折りたたみ時でも展開ボタンを見失わないようにする */
   #builderFooter{ position:sticky; bottom:0; z-index:6; }

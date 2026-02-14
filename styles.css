@@ -581,6 +581,18 @@ html,body{
   border-radius: var(--pill);
   padding:6px 10px;
 }
+#toolbar #btnToolbarCollapse{
+  min-width: 132px;
+  font-weight: 700;
+}
+#toolbar.collapsed{
+  width: auto !important;
+  max-width: calc(100vw - 16px) !important;
+  padding-right: 10px;
+}
+#toolbar.collapsed > :not(#btnToolbarCollapse){
+  display:none !important;
+}
 
 /* highlight key actions */
 #btnRemove{
@@ -1273,6 +1285,19 @@ body.playMode #toolbar label{
   body.playMode #toolbar #btnCounter{
     flex-basis: 100%;
     min-width: 100%;
+  }
+  body.playMode #toolbar.collapsed{
+    width: auto !important;
+    left: 6px !important;
+    right: auto !important;
+    top: 6px !important;
+    border-radius: 14px;
+    padding: max(8px, env(safe-area-inset-top)) 8px 8px;
+    justify-content: flex-start;
+  }
+  body.playMode #toolbar.collapsed #btnToolbarCollapse{
+    flex: 0 0 auto;
+    min-width: 132px;
   }
 }
 

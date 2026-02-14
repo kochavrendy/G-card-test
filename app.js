@@ -438,6 +438,7 @@ const btnPreview=document.getElementById('btnPreview');
 const btnBackToMode=document.getElementById('btnBackToMode');
 const btnToken=document.getElementById('btnToken');
 const btnCounter=document.getElementById('btnCounter');
+const btnEffect=document.getElementById('btnEffect');
 const btnCoin=document.getElementById('btnCoin');
 const deckReturnPosSel=document.getElementById('deckReturnPos'); // [patch]
 let deckReturnPos=deckReturnPosSel?deckReturnPosSel.value:'top'; // [patch]
@@ -1172,6 +1173,7 @@ function clearCounterOnSelection(){
 }
 
 if(btnCounter) btnCounter.onclick=openCounterSelector;
+if(btnEffect) btnEffect.onclick=runSelectedCardEffect;
 if(btnCounterCancel) btnCounterCancel.onclick=closeCounterSelector;
 if(btnCounterClear) btnCounterClear.onclick=()=>{ clearCounterOnSelection(); closeCounterSelector(); };
 
@@ -1186,6 +1188,109 @@ if(counterModal){
       if(def){ applyCounterToSelection(def.val); closeCounterSelector(); }
     }
   });
+}
+
+
+
+function getCardMetaByCard(card){
+  if(!card) return null;
+  const key = String((card.metaId||card.origName||'')).replace(/\.png$/i,'');
+  return getMetaById(key);
+}
+function getCardNameForEffect(card){
+  const meta = getCardMetaByCard(card);
+  return String((meta && meta.name) || card.origName || card.metaId || '');
+}
+function _removeIdFromPools(id){
+  const i=deckPool.indexOf(id); if(i!==-1) deckPool.splice(i,1);
+  const j=discardPool.indexOf(id); if(j!==-1) discardPool.splice(j,1);
+  const k=monsterPool.indexOf(id); if(k!==-1) monsterPool.splice(k,1);
+}
+function addCounterToCard(card, val){
+  if(!card) return;
+  const add=Number(val)||0;
+  if(!add) return;
+  card.counters = normalizeCounters(card);
+  card.counters.push(add);
+  card.counterVal = getCounterSum(card);
+  renderCard(card);
+}
+function moveCardUnderTarget(card, target){
+  if(!card || !target || card.id===target.id) return;
+  card.zone = target.zone;
+  card.faceDown = false;
+  card.x = target.x;
+  card.y = target.y;
+  hideIfPooled(card);
+
+  const fromIdx = state.order.indexOf(card.id);
+  if(fromIdx!==-1) state.order.splice(fromIdx,1);
+  const toIdx = state.order.indexOf(target.id);
+  if(toIdx===-1) state.order.push(card.id);
+  else state.order.splice(toIdx,0,card.id);
+
+  const cardEl = document.getElementById(card.id);
+  const cardOv = document.getElementById(card.id+'_ctr');
+  const targetEl = document.getElementById(target.id);
+  if(cardEl && targetEl){
+    board.insertBefore(cardEl, targetEl);
+    if(cardOv) board.insertBefore(cardOv, targetEl);
+  }
+  renderCard(card);
+}
+function pickHandCardToDiscard(){
+  const handCards = state.order.map(id=>state.cards[id]).filter(c=>c && c.zone==='hand');
+  if(!handCards.length){ alert('手札がありません。'); return false; }
+  const menu = handCards.map((c,idx)=>`${idx+1}: ${getCardNameForEffect(c)||'カード'}`).join('\n');
+  const ans = prompt(`捨てる手札を番号で選んでください\n${menu}`, '1');
+  if(ans==null) return false;
+  const idx = Number(ans)-1;
+  if(!Number.isInteger(idx) || idx<0 || idx>=handCards.length){
+    alert('有効な番号を入力してください。');
+    return false;
+  }
+  const c = handCards[idx];
+  c.zone='discard';
+  c.faceDown=true;
+  hideIfPooled(c);
+  if(!discardPool.includes(c.id)) discardPool.push(c.id);
+  const di = deckPool.indexOf(c.id); if(di!==-1) deckPool.splice(di,1);
+  renderCard(c);
+  layoutHand();
+  return true;
+}
+function runSelectedCardEffect(){
+  if(!selection.size){ alert('カードを選択してください'); return; }
+  if(selection.size!==1){ alert('能力実行は1枚選択で使ってください'); return; }
+  const id=[...selection][0];
+  const card=state.cards[id];
+  if(!card) return;
+  const name = getCardNameForEffect(card);
+  if(name.includes('オルガ')){
+    drawFromDeck(1);
+    if(!pickHandCardToDiscard()) return;
+    updateCounters();
+    scheduleSpectatorSyncFast();
+    pushUndo();
+    return;
+  }
+  if(name.includes('ジェットジャガー')){
+    const giganId = [...discardPool].reverse().find(cid=>{
+      const dc=state.cards[cid];
+      if(!dc) return false;
+      return getCardNameForEffect(dc).includes('ガイガン');
+    });
+    if(!giganId){ alert('捨て札にガイガンがありません。'); return; }
+    const gigan=state.cards[giganId];
+    _removeIdFromPools(giganId);
+    moveCardUnderTarget(gigan, card);
+    addCounterToCard(card, 3000);
+    updateCounters();
+    scheduleSpectatorSyncFast();
+    pushUndo();
+    return;
+  }
+  alert('このカードの能力は未対応です。');
 }
 
 // ===== ZONES =====
@@ -3722,7 +3827,7 @@ function wireSoloForwarding(){
   const forwardIds = new Set([
     'btnFlip','btnRemove','btnToFront','btnToBack','btnUndo',
     'btnSave','btnLoad','btnTurnStart','btnPreview','btnToken',
-    'btnCounter'
+    'btnCounter','btnEffect'
   ]);
 
   const getIdFromEvent = (ev)=>{

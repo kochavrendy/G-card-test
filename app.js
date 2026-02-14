@@ -3268,6 +3268,10 @@ function resolveDecklogCardId(rawId){
 function pickDecklogMainRows(payload){
   if(Array.isArray(payload?.main)) return payload.main;
   if(Array.isArray(payload?.mainCards)) return payload.mainCards;
+  if(Array.isArray(payload?.main_deck)) return payload.main_deck;
+  if(Array.isArray(payload?.deck?.main)) return payload.deck.main;
+  if(Array.isArray(payload?.deck?.mainCards)) return payload.deck.mainCards;
+  if(Array.isArray(payload?.deck_recipe?.main)) return payload.deck_recipe.main;
   if(Array.isArray(payload?.deck?.main)) return payload.deck.main;
   if(Array.isArray(payload?.cards)) return payload.cards;
   return [];
@@ -3276,12 +3280,23 @@ function pickDecklogMainRows(payload){
 function pickDecklogMonsterRows(payload){
   if(Array.isArray(payload?.monster)) return payload.monster;
   if(Array.isArray(payload?.monsterCards)) return payload.monsterCards;
+  if(Array.isArray(payload?.monster_deck)) return payload.monster_deck;
+  if(Array.isArray(payload?.kaiju)) return payload.kaiju;
+  if(Array.isArray(payload?.deck?.monster)) return payload.deck.monster;
+  if(Array.isArray(payload?.deck?.monsterCards)) return payload.deck.monsterCards;
+  if(Array.isArray(payload?.deck_recipe?.monster)) return payload.deck_recipe.monster;
   if(Array.isArray(payload?.deck?.monster)) return payload.deck.monster;
   return [];
 }
 
 function rowToDecklogCard(row){
   if(!row) return null;
+  if(typeof row==='string') return { id: row, count: 1, side: '' };
+  const id = row.cardId ?? row.card_id ?? row.cardNo ?? row.card_no ?? row.id ?? row.code;
+  const count = Number(row.count ?? row.num ?? row.quantity ?? row.card_num ?? row.number ?? 1) || 1;
+  const sideRaw = String(row.side ?? row.deckType ?? row.deck_type ?? row.category ?? row.zone ?? row.group ?? '').toLowerCase();
+  if(!id) return null;
+  return { id, count, side: sideRaw };
   if(typeof row==='string') return { id: row, count: 1 };
   const id = row.cardId ?? row.card_id ?? row.id ?? row.code;
   const count = Number(row.count ?? row.num ?? row.quantity ?? 1) || 1;
@@ -3293,6 +3308,35 @@ function mapDecklogJsonToDeck(payload){
   const main={};
   const monster={};
   const unsupported=[];
+
+  const addCard=(card, target)=>{
+    if(!card) return;
+    const resolved=resolveDecklogCardId(card.id);
+    if(!resolved){
+      unsupported.push(String(card.id));
+      return;
+    }
+    target[resolved]=(target[resolved]||0)+Math.max(1,Math.floor(card.count));
+  };
+
+  const addRows=(rows,target)=>{ (rows||[]).forEach((row)=> addCard(rowToDecklogCard(row), target)); };
+
+  const mainRows=pickDecklogMainRows(payload);
+  const monRows=pickDecklogMonsterRows(payload);
+  addRows(mainRows,main);
+  addRows(monRows,monster);
+
+  if(Object.keys(main).length===0 && Object.keys(monster).length===0){
+    const genericRows = payload?.cards || payload?.deck?.cards || payload?.deck_recipe?.cards || payload?.list || [];
+    (Array.isArray(genericRows)?genericRows:[]).forEach((row)=>{
+      const card=rowToDecklogCard(row);
+      if(!card) return;
+      const side = card.side;
+      const isMonster = /monster|kaiju|怪獣/.test(side);
+      addCard(card, isMonster ? monster : main);
+    });
+  }
+
   const addRows=(rows,target)=>{
     (rows||[]).forEach((row)=>{
       const card=rowToDecklogCard(row);
@@ -3315,6 +3359,22 @@ function mapDecklogJsonToDeck(payload){
   };
 }
 
+function parseDecklogCode(input){
+  const raw=String(input||'').trim();
+  if(!raw) return '';
+  const direct=raw.match(/^[A-Za-z0-9]{5,16}$/);
+  if(direct) return direct[0].toUpperCase();
+  const fromPath=raw.match(/decklog\.bushiroad\.com\/view\/([A-Za-z0-9]{5,16})/i);
+  if(fromPath) return fromPath[1].toUpperCase();
+  const fromQuery=raw.match(/[?&](?:code|deck|deckCode)=([A-Za-z0-9]{5,16})/i);
+  if(fromQuery) return fromQuery[1].toUpperCase();
+  const anyCode=raw.match(/\b([A-Za-z0-9]{5,16})\b/);
+  return anyCode ? anyCode[1].toUpperCase() : '';
+}
+
+async function fetchDecklogDeck(code){
+  const deckCode=parseDecklogCode(code);
+  const safeCode=encodeURIComponent(deckCode);
 async function fetchDecklogDeck(code){
   const safeCode=encodeURIComponent(String(code||'').trim());
   if(!safeCode) throw new Error('empty_code');
@@ -3426,6 +3486,16 @@ btnDecklogLoad && (btnDecklogLoad.onclick=async ()=>{
   try{
     const raw=deckCodeBox.value.trim();
     if(!raw){
+      setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（DeckLogコード/URLを入力してください）`);
+      return;
+    }
+    setDecklogStatus('warn','DeckLogから読み込み中...');
+    const parsedCode=parseDecklogCode(raw);
+    if(!parsedCode){
+      setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（DeckLogコードを抽出できません）`);
+      return;
+    }
+    const deck = await fetchDecklogDeck(parsedCode);
       setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（DeckLogコードを入力してください）`);
       return;
     }

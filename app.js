@@ -111,6 +111,8 @@ const toolbar=document.getElementById('toolbar');
 // ===== Fixed UI size + auto scale =====
 let __uiScale = 1;
 let __lastStableUIScale = 1;
+let __lastStableStageLeft = 0;
+let __lastStableStageTop = 0;
 function applyUIScale(){
   const rs = getComputedStyle(document.documentElement);
   const baseW = parseFloat(rs.getPropertyValue('--base-w')) || 2048;
@@ -142,8 +144,19 @@ function applyUIScale(){
 
   __uiScale = s;
   document.documentElement.style.setProperty('--ui-scale', String(s));
-  const stageLeft = Math.max(0, (w - baseW * s) / 2);
-  const stageTop  = 0;
+  let stageLeft = Math.max(0, (w - baseW * s) / 2);
+  let stageTop  = 0;
+
+  // ピンチズーム中は viewport の小刻みな変化で左右に揺れやすいため、
+  // 直前の安定した配置を保持してガクつきを抑える。
+  if(isPinchZooming){
+    stageLeft = __lastStableStageLeft;
+    stageTop = __lastStableStageTop;
+  }else{
+    __lastStableStageLeft = stageLeft;
+    __lastStableStageTop = stageTop;
+  }
+
   document.documentElement.style.setProperty('--stage-left', stageLeft + 'px');
   document.documentElement.style.setProperty('--stage-top', stageTop + 'px');
 }

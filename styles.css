@@ -1219,8 +1219,13 @@ body.soloActive #toolbar{ right:auto !important; }
 
 @media (max-width: 768px) and (orientation: portrait){
   #builderMain{ flex-direction:column; overflow:auto; }
-  #libPane{ min-height:52vh; }
-  #deckPane{ min-height:36vh; }
+  /* スマホ縦画面ではカード一覧の縦幅を広げて見やすくする */
+  #libPane{ min-height:76vh; }
+  #deckPane{ min-height:24vh; }
+
+  /* 構築エリアのカード表示はややコンパクトに */
+  .libCard{ width:min(34vw, 138px); }
+  .deckThumb{ width:min(24vw, 92px); }
 }
 
 @media (max-width: 768px) and (orientation: landscape){

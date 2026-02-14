@@ -1245,9 +1245,9 @@ body.soloActive #toolbar{ right:auto !important; }
   #libPane{ min-height:76vh; }
   #deckPane{ min-height:28vh; }
 
-  /* 構築エリアのカード表示はややコンパクトに */
+  /* 現在のデッキ欄のカード幅を確保して視認性を上げる */
   .libCard{ width:min(34vw, 138px); }
-  .deckThumb{ width:min(24vw, 92px); }
+  .deckThumb{ width:min(32vw, 124px); }
 }
 
 @media (max-width: 768px) and (orientation: landscape){

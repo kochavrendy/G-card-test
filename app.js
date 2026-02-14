@@ -516,7 +516,9 @@ const gridMain=document.getElementById('gridMain');
 const countInfo=document.getElementById('countInfo');
 const deckCodeBox=document.getElementById('deckCodeBox');
 const btnCodeLoad=document.getElementById('btnCodeLoad');
+const btnDecklogLoad=document.getElementById('btnDecklogLoad');
 const btnCodeGen=document.getElementById('btnCodeGen');
+const decklogStatus=document.getElementById('decklogStatus');
 const btnBuildStart=document.getElementById('btnBuildStart');
 const btnBuildSolo=document.getElementById('btnBuildSolo');
 const btnBuildCancel=document.getElementById('btnBuildCancel');
@@ -3214,6 +3216,117 @@ function updateBuildCount(){const m=sumObj(buildMain),k=sumObj(buildMon);countIn
 function sumObj(o){return Object.values(o).reduce((a,b)=>a+b,0);}
 btnCodeGen.onclick=()=>{deckCodeBox.value=encodeDeck({main:buildMain,monster:buildMon});};
 
+
+
+function setDecklogStatus(kind, message){
+  if(!decklogStatus) return;
+  decklogStatus.classList.remove('hidden','error','warn','ok');
+  if(!message){
+    decklogStatus.textContent='';
+    decklogStatus.classList.add('hidden');
+    return;
+  }
+  decklogStatus.classList.add(kind||'warn');
+  decklogStatus.textContent=String(message);
+}
+
+const DECKLOG_LOAD_FAIL_TEXT='このコードは読込不可';
+
+function normalizeDecklogCardId(rawId){
+  const base=String(rawId||'').trim();
+  if(!base) return '';
+  const s=base.replace(/_/g,'-').toUpperCase();
+  const m=s.match(/^(BP|SD|FC)(\d{1,2})-(\d{1,3})(OL)?$/);
+  if(m){
+    const prefix=m[1];
+    const setNo=String(parseInt(m[2],10)).padStart(2,'0');
+    const cardNo=String(parseInt(m[3],10)).padStart(3,'0');
+    const core=`${prefix}${setNo}-${cardNo}`;
+    return m[4] ? core+'ol' : core;
+  }
+  const pr=s.match(/^PR-(\d{1,3})$/);
+  if(pr){
+    return `PR-${String(parseInt(pr[1],10)).padStart(3,'0')}`;
+  }
+  return s;
+}
+
+function resolveDecklogCardId(rawId){
+  const normalized=normalizeDecklogCardId(rawId);
+  if(!normalized) return '';
+  if(CARD_DB.some(c=>c.id===normalized)) return normalized;
+  if(normalized.endsWith('ol')){
+    const alt=normalized.replace(/ol$/,'');
+    if(CARD_DB.some(c=>c.id===alt)) return alt;
+  }else{
+    const alt=normalized+'ol';
+    if(CARD_DB.some(c=>c.id===alt)) return alt;
+  }
+  return '';
+}
+
+function pickDecklogMainRows(payload){
+  if(Array.isArray(payload?.main)) return payload.main;
+  if(Array.isArray(payload?.mainCards)) return payload.mainCards;
+  if(Array.isArray(payload?.deck?.main)) return payload.deck.main;
+  if(Array.isArray(payload?.cards)) return payload.cards;
+  return [];
+}
+
+function pickDecklogMonsterRows(payload){
+  if(Array.isArray(payload?.monster)) return payload.monster;
+  if(Array.isArray(payload?.monsterCards)) return payload.monsterCards;
+  if(Array.isArray(payload?.deck?.monster)) return payload.deck.monster;
+  return [];
+}
+
+function rowToDecklogCard(row){
+  if(!row) return null;
+  if(typeof row==='string') return { id: row, count: 1 };
+  const id = row.cardId ?? row.card_id ?? row.id ?? row.code;
+  const count = Number(row.count ?? row.num ?? row.quantity ?? 1) || 1;
+  if(!id) return null;
+  return { id, count };
+}
+
+function mapDecklogJsonToDeck(payload){
+  const main={};
+  const monster={};
+  const unsupported=[];
+  const addRows=(rows,target)=>{
+    (rows||[]).forEach((row)=>{
+      const card=rowToDecklogCard(row);
+      if(!card) return;
+      const resolved=resolveDecklogCardId(card.id);
+      if(!resolved){
+        unsupported.push(String(card.id));
+        return;
+      }
+      target[resolved]=(target[resolved]||0)+Math.max(1,Math.floor(card.count));
+    });
+  };
+  addRows(pickDecklogMainRows(payload),main);
+  addRows(pickDecklogMonsterRows(payload),monster);
+  return {
+    main,
+    monster,
+    unsupported:[...new Set(unsupported)].sort(),
+    isEmpty:(Object.keys(main).length===0 && Object.keys(monster).length===0),
+  };
+}
+
+async function fetchDecklogDeck(code){
+  const safeCode=encodeURIComponent(String(code||'').trim());
+  if(!safeCode) throw new Error('empty_code');
+  const res=await fetch(`/api/decklog/${safeCode}`, {
+    method:'GET',
+    headers:{ 'Accept':'application/json' },
+    cache:'no-store',
+  });
+  if(!res.ok) throw new Error('fetch_failed');
+  const json=await res.json();
+  return mapDecklogJsonToDeck(json);
+}
 // ===== Hidden Command Codes (mobile-friendly) =====
 // デッキコード欄 / QR の文字列にコマンドを入れて起動できる
 // 例: "v2:cmd:2pick" / "cmd:2pick" / "2pick" / "g2pick"
@@ -3284,6 +3397,7 @@ function makeDebugRandomDeck(){
 }
 btnCodeLoad.onclick=()=>{
   try{
+    setDecklogStatus('', '');
     const raw = deckCodeBox.value.trim();
     // Mobile-friendly hidden command: paste a command-like "deck code" to launch 2Pick
     // e.g. v2:cmd:2pick
@@ -3307,6 +3421,33 @@ btnCodeLoad.onclick=()=>{
     alert('コードが不正です');
   }
 };
+
+btnDecklogLoad && (btnDecklogLoad.onclick=async ()=>{
+  try{
+    const raw=deckCodeBox.value.trim();
+    if(!raw){
+      setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（DeckLogコードを入力してください）`);
+      return;
+    }
+    setDecklogStatus('warn','DeckLogから読み込み中...');
+    const deck = await fetchDecklogDeck(raw);
+    if(deck.isEmpty){
+      setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（デッキ内のカードを特定できませんでした）`);
+      return;
+    }
+    buildMain=deck.main||{};
+    buildMon=deck.monster||{};
+    renderDeckThumbs();
+    updateBuildCount();
+    if(deck.unsupported.length>0){
+      setDecklogStatus('warn', `未対応カード一覧: ${deck.unsupported.join(', ')}`);
+    }else{
+      setDecklogStatus('ok','DeckLogデッキを読み込みました');
+    }
+  }catch(e){
+    setDecklogStatus('error', DECKLOG_LOAD_FAIL_TEXT);
+  }
+});
 
 // ===== Deck QR =====
 function normalizeDeckCodeFromText(t){

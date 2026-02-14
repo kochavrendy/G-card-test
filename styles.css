@@ -1237,6 +1237,10 @@ body.soloActive #toolbar{ right:auto !important; }
 
 @media (max-width: 768px) and (orientation: portrait){
   #builderMain{ flex-direction:column; overflow:auto; }
+  /* スマホ縦画面では「現在のデッキ」枠も十分な高さを確保する */
+  #libPane{ min-height:56vh; }
+  #deckPane{ min-height:52vh; }
+  #deckScroll{ min-height:46vh; }
   /* スマホ縦画面ではカード一覧の縦幅を広げて見やすくする */
   #libPane{ min-height:76vh; }
   #deckPane{ min-height:28vh; }

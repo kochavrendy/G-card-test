@@ -103,23 +103,28 @@
           </div>
         </div>
       </div>
-      <div id="builderFooter">
-        <div id="countInfo">メイン 0/50　怪獣 0/4</div>
-        <textarea id="deckCodeBox" placeholder="ここにデッキコードを貼る / 生成されたコードが出る"></textarea>
-        <div class="builderBtnCol">
-          <button id="btnCodeLoad">コード読込</button>
-          <button id="btnCodeGen">コード生成</button>
-          <button id="btnQrGen" title="現在のデッキをQRで共有">QR生成</button>
-          <button id="btnQrFile" title="QR画像（スクショ等）からデッキを取り込む">画像QR読込</button>
-          <input id="qrFileInput" type="file" accept="image/*" class="hidden" />
-          <button id="btnBuildStart">このデッキで開始</button>
-          <button id="btnBuildSolo" title="一人回し（2デッキ選択）">一人回し</button>
-          <button id="btnBuildCancel">キャンセル</button>
-          <div class="builderSep"></div>
-          <button id="btnDeckSave" title="構築中のデッキを保存して一覧に登録">💾デッキセーブ</button>
-          <button id="btnDeckLoad" title="保存済みデッキ一覧を開く">📚デッキロード</button>
-          <button id="btnDeckDownload" title="保存済みデッキ一覧(セーブデータ)をJSONでダウンロード">⬇セーブDL</button>
-          <label class="btnLike" title="ダウンロードしたセーブデータ(JSON)をアップロードして取り込む">⬆セーブUP<input id="deckUploadInput" type="file" accept="application/json,.json"></label>
+      <div id="builderFooter" class="builderFooterSection">
+        <div id="builderFooterHeader" class="builderFooterHeader" role="button" tabindex="0" aria-controls="builderFooterBody" aria-expanded="true">
+          <div id="countInfo">メイン 0/50　怪獣 0/4</div>
+          <button id="btnBuilderFooterToggle" type="button" class="builderFooterToggle" aria-label="デッキ構築の下部メニューを折りたたみ/展開">▾</button>
+        </div>
+        <div id="builderFooterBody">
+          <textarea id="deckCodeBox" placeholder="ここにデッキコードを貼る / 生成されたコードが出る"></textarea>
+          <div class="builderBtnCol">
+            <button id="btnCodeLoad">コード読込</button>
+            <button id="btnCodeGen">コード生成</button>
+            <button id="btnQrGen" title="現在のデッキをQRで共有">QR生成</button>
+            <button id="btnQrFile" title="QR画像（スクショ等）からデッキを取り込む">画像QR読込</button>
+            <input id="qrFileInput" type="file" accept="image/*" class="hidden" />
+            <button id="btnBuildStart">このデッキで開始</button>
+            <button id="btnBuildSolo" title="一人回し（2デッキ選択）">一人回し</button>
+            <button id="btnBuildCancel">キャンセル</button>
+            <div class="builderSep"></div>
+            <button id="btnDeckSave" title="構築中のデッキを保存して一覧に登録">💾デッキセーブ</button>
+            <button id="btnDeckLoad" title="保存済みデッキ一覧を開く">📚デッキロード</button>
+            <button id="btnDeckDownload" title="保存済みデッキ一覧(セーブデータ)をJSONでダウンロード">⬇セーブDL</button>
+            <label class="btnLike" title="ダウンロードしたセーブデータ(JSON)をアップロードして取り込む">⬆セーブUP<input id="deckUploadInput" type="file" accept="application/json,.json"></label>
+          </div>
         </div>
       </div>
     </div>

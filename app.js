@@ -454,6 +454,10 @@ try{ if(FLIP_LAYOUT) document.body.classList.add('flipLayout'); }catch(e){}
 
 // builder
 const builder=document.getElementById('builder');
+const builderMain=document.getElementById('builderMain');
+const mobileBuilderTabs=document.getElementById('mobileBuilderTabs');
+const btnMobileShowLib=document.getElementById('btnMobileShowLib');
+const btnMobileShowDeck=document.getElementById('btnMobileShowDeck');
 const libFilter=document.getElementById('libFilter');
 const libColor=document.getElementById('libColor');
 const libType=document.getElementById('libType');
@@ -3024,7 +3028,41 @@ function renderSetBar(){
   updateSetBarActive();
 }
 
-function openBuilder(){builder.classList.remove('hidden');renderSetBar();loadSetBarCollapsed();loadBuilderFooterCollapsed();renderLibrary();renderDeckThumbs();updateBuildCount();}
+
+function setMobileBuilderView(mode='lib'){
+  if(!builderMain) return;
+  const view=(mode==='deck')?'deck':'lib';
+  builderMain.dataset.mobileView=view;
+  if(btnMobileShowLib){
+    const active=view==='lib';
+    btnMobileShowLib.classList.toggle('active', active);
+    btnMobileShowLib.setAttribute('aria-selected', active ? 'true' : 'false');
+  }
+  if(btnMobileShowDeck){
+    const active=view==='deck';
+    btnMobileShowDeck.classList.toggle('active', active);
+    btnMobileShowDeck.setAttribute('aria-selected', active ? 'true' : 'false');
+  }
+}
+function syncMobileBuilderUI(){
+  if(!mobileBuilderTabs || !builderMain) return;
+  const isMobileLandscape = window.matchMedia('(max-width: 768px) and (orientation: landscape)').matches;
+  mobileBuilderTabs.classList.toggle('hidden', !isMobileLandscape);
+  if(!isMobileLandscape){
+    builderMain.dataset.mobileView='';
+    return;
+  }
+  if(builderMain.dataset.mobileView!=='deck' && builderMain.dataset.mobileView!=='lib'){
+    setMobileBuilderView('lib');
+  }else{
+    setMobileBuilderView(builderMain.dataset.mobileView);
+  }
+}
+if(btnMobileShowLib) btnMobileShowLib.addEventListener('click', ()=>setMobileBuilderView('lib'));
+if(btnMobileShowDeck) btnMobileShowDeck.addEventListener('click', ()=>setMobileBuilderView('deck'));
+window.addEventListener('resize', syncMobileBuilderUI);
+
+function openBuilder(){builder.classList.remove('hidden');renderSetBar();loadSetBarCollapsed();loadBuilderFooterCollapsed();renderLibrary();renderDeckThumbs();updateBuildCount();syncMobileBuilderUI();}
 function closeBuilder(){builder.classList.add('hidden');}
 
 function renderLibrary(){

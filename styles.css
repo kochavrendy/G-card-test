@@ -1241,6 +1241,9 @@ body.soloActive #toolbar{ right:auto !important; }
   #libPane{ min-height:56vh; }
   #deckPane{ min-height:52vh; }
   #deckScroll{ min-height:46vh; }
+  /* スマホ縦画面ではカード一覧の縦幅を広げて見やすくする */
+  #libPane{ min-height:76vh; }
+  #deckPane{ min-height:28vh; }
 
   /* 構築エリアのカード表示はややコンパクトに */
   .libCard{ width:min(34vw, 138px); }

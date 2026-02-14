@@ -1,5 +1,6 @@
 export default async function handler(req, res) {
   const code = extractDecklogCode(req.query?.code);
+  const code = String(req.query?.code || '').trim();
   if (!code) {
     res.status(400).json({ error: 'missing_code' });
     return;
@@ -32,6 +33,11 @@ async function fetchDecklogPayload(code) {
     `https://decklog.bushiroad.com/view/${encodeURIComponent(code)}`,
     `https://decklog.bushiroad.com/deckimages/${encodeURIComponent(code)}.json`,
     `https://decklog.bushiroad.com/system/app/recipe/${encodeURIComponent(code)}?output=json`,
+async function fetchDecklogPayload(code) {
+  const candidates = [
+    `https://decklog.bushiroad.com/view/${encodeURIComponent(code)}.json`,
+    `https://decklog.bushiroad.com/deckimages/${encodeURIComponent(code)}.json`,
+    `https://decklog.bushiroad.com/view/${encodeURIComponent(code)}`,
   ];
 
   for (const url of candidates) {
@@ -39,6 +45,7 @@ async function fetchDecklogPayload(code) {
       headers: {
         'User-Agent': 'G-card-test proxy',
         Accept: 'application/json,text/plain,text/html;q=0.9,*/*;q=0.8',
+        Accept: 'application/json, text/html;q=0.9,*/*;q=0.8',
       },
     });
     if (!res.ok) continue;
@@ -62,6 +69,7 @@ function extractNextDataJson(html) {
   try {
     const root = JSON.parse(m[1]);
     return root?.props?.pageProps?.deck || root?.props?.pageProps?.deckData || root?.props?.pageProps || root;
+    return root?.props?.pageProps?.deck || root?.props?.pageProps || root;
   } catch {
     return null;
   }

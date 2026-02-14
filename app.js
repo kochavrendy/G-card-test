@@ -3272,6 +3272,8 @@ function pickDecklogMainRows(payload){
   if(Array.isArray(payload?.deck?.main)) return payload.deck.main;
   if(Array.isArray(payload?.deck?.mainCards)) return payload.deck.mainCards;
   if(Array.isArray(payload?.deck_recipe?.main)) return payload.deck_recipe.main;
+  if(Array.isArray(payload?.deck?.main)) return payload.deck.main;
+  if(Array.isArray(payload?.cards)) return payload.cards;
   return [];
 }
 
@@ -3283,6 +3285,7 @@ function pickDecklogMonsterRows(payload){
   if(Array.isArray(payload?.deck?.monster)) return payload.deck.monster;
   if(Array.isArray(payload?.deck?.monsterCards)) return payload.deck.monsterCards;
   if(Array.isArray(payload?.deck_recipe?.monster)) return payload.deck_recipe.monster;
+  if(Array.isArray(payload?.deck?.monster)) return payload.deck.monster;
   return [];
 }
 
@@ -3294,6 +3297,11 @@ function rowToDecklogCard(row){
   const sideRaw = String(row.side ?? row.deckType ?? row.deck_type ?? row.category ?? row.zone ?? row.group ?? '').toLowerCase();
   if(!id) return null;
   return { id, count, side: sideRaw };
+  if(typeof row==='string') return { id: row, count: 1 };
+  const id = row.cardId ?? row.card_id ?? row.id ?? row.code;
+  const count = Number(row.count ?? row.num ?? row.quantity ?? 1) || 1;
+  if(!id) return null;
+  return { id, count };
 }
 
 function mapDecklogJsonToDeck(payload){
@@ -3329,6 +3337,20 @@ function mapDecklogJsonToDeck(payload){
     });
   }
 
+  const addRows=(rows,target)=>{
+    (rows||[]).forEach((row)=>{
+      const card=rowToDecklogCard(row);
+      if(!card) return;
+      const resolved=resolveDecklogCardId(card.id);
+      if(!resolved){
+        unsupported.push(String(card.id));
+        return;
+      }
+      target[resolved]=(target[resolved]||0)+Math.max(1,Math.floor(card.count));
+    });
+  };
+  addRows(pickDecklogMainRows(payload),main);
+  addRows(pickDecklogMonsterRows(payload),monster);
   return {
     main,
     monster,
@@ -3353,6 +3375,8 @@ function parseDecklogCode(input){
 async function fetchDecklogDeck(code){
   const deckCode=parseDecklogCode(code);
   const safeCode=encodeURIComponent(deckCode);
+async function fetchDecklogDeck(code){
+  const safeCode=encodeURIComponent(String(code||'').trim());
   if(!safeCode) throw new Error('empty_code');
   const res=await fetch(`/api/decklog/${safeCode}`, {
     method:'GET',
@@ -3472,6 +3496,11 @@ btnDecklogLoad && (btnDecklogLoad.onclick=async ()=>{
       return;
     }
     const deck = await fetchDecklogDeck(parsedCode);
+      setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（DeckLogコードを入力してください）`);
+      return;
+    }
+    setDecklogStatus('warn','DeckLogから読み込み中...');
+    const deck = await fetchDecklogDeck(raw);
     if(deck.isEmpty){
       setDecklogStatus('error', `${DECKLOG_LOAD_FAIL_TEXT}（デッキ内のカードを特定できませんでした）`);
       return;

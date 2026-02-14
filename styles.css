@@ -1211,6 +1211,14 @@ body.soloActive #toolbar{ right:auto !important; }
   .libCard{ width:132px; }
   .deckThumb{ width:96px; }
   #deckMgrPanel{ width:96vw; height:88vh; }
+
+  /* スマホで折りたたみ時でも展開ボタンを見失わないようにする */
+  #builderFooter{ position:sticky; bottom:0; z-index:6; }
+  .builderFooterHeader{ min-height:36px; }
+  .builderFooterToggle{ flex:0 0 auto; }
+  #countInfo{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .builderFooterSection.collapsed #countInfo{ display:none; }
+  .builderFooterSection.collapsed .builderFooterHeader{ justify-content:flex-end; }
 }
 
 @media (max-width: 480px){

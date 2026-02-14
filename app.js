@@ -2538,9 +2538,13 @@ try{ lastCoin = (Object.prototype.hasOwnProperty.call(p,'lastCoin')) ? p.lastCoi
 }
 
 // ===== start modal handlers =====
+function setPlayModeUI(active){
+  try{ document.body.classList.toggle('playMode', !!active); }catch(e){}
+}
+
 btnStartBuild.onclick=()=>{startModal.style.display='none';openBuilder();};
-btnStartPlay.onclick=()=>{startModal.style.display='none';toolbar.classList.remove('hidden');lastCoin=null;updateCoinUI();autoLoadBackImage();};
-function goBackToMode(){if(revealIsOpen()) cancelReveal(); toolbar.classList.add('hidden');viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
+btnStartPlay.onclick=()=>{startModal.style.display='none';toolbar.classList.remove('hidden');setPlayModeUI(true);lastCoin=null;updateCoinUI();autoLoadBackImage();};
+function goBackToMode(){if(revealIsOpen()) cancelReveal(); toolbar.classList.add('hidden');setPlayModeUI(false);viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
 
 
 // ===== embed instance (used by solo mode iframes) =====
@@ -2548,6 +2552,7 @@ if(IS_EMBED){
   try{ startModal.style.display='none'; }catch(e){}
   try{ builder.classList.add('hidden'); }catch(e){}
   try{ toolbar.classList.add('hidden'); }catch(e){}
+  setPlayModeUI(false);
   try{ if(btnBackToMode) btnBackToMode.style.display='none'; }catch(e){}
   try{ if(btnStartBuild) btnStartBuild.style.display='none'; }catch(e){}
   // keep toolbars in embedded instances, but hide spectator button (not needed)
@@ -3549,7 +3554,7 @@ qrFileInput && (qrFileInput.onchange=async ()=>{
   applyImportedDeckCode(data);
 });
 btnBuildCancel.onclick=()=>{closeBuilder();startModal.style.display='flex';};
-btnBuildStart.onclick=()=>{if(!(sumObj(buildMain)===MAIN_LIMIT&&sumObj(buildMon)===MON_LIMIT)){alert('枚数が足りません');return;}closeBuilder();toolbar.classList.remove('hidden');applyDeckAndStart({main:buildMain,monster:buildMon});autoLoadBackImage();};
+btnBuildStart.onclick=()=>{if(!(sumObj(buildMain)===MAIN_LIMIT&&sumObj(buildMon)===MON_LIMIT)){alert('枚数が足りません');return;}closeBuilder();toolbar.classList.remove('hidden');setPlayModeUI(true);applyDeckAndStart({main:buildMain,monster:buildMon});autoLoadBackImage();};
 
 // ===== Solo (一人回し) =====
 let soloPickStep = 1; // 1: you(bottom) / 2: opp(top)
@@ -4059,6 +4064,7 @@ function startSoloMode(){
   // hide main UI and open solo container
   try{ builder.classList.add('hidden'); }catch(e){}
   try{ toolbar.classList.remove('hidden'); }catch(e){}
+  setPlayModeUI(true);
   try{ document.body.classList.add('soloActive'); }catch(e){}
   // ソロ開始時はメタ（コイン）を初期化して親・両盤面で揃える
   try{ lastCoin=null; updateCoinUI(); }catch(e){}

@@ -1210,6 +1210,81 @@ body.soloActive #toolbar{ right:auto !important; }
     margin:0;
   }
 
+
+
+/* ===== Play mode mobile controls ===== */
+:root{
+  --play-toolbar-btn-min-h: 40px;
+  --play-toolbar-btn-font: 13px;
+}
+
+body.playMode #toolbar button,
+body.playMode #toolbar label,
+body.playMode #toolbar select{
+  min-height: var(--play-toolbar-btn-min-h);
+  font-size: var(--play-toolbar-btn-font);
+}
+
+body.playMode #toolbar button,
+body.playMode #toolbar label{
+  padding: 10px 14px;
+}
+
+@media (max-width: 768px){
+  body.playMode #toolbar{
+    left: 0;
+    right: 0;
+    top: 0;
+    max-width: none;
+    width: 100vw;
+    border-radius: 0;
+    padding: max(8px, env(safe-area-inset-top)) 8px 8px;
+    gap: 7px;
+    justify-content: center;
+  }
+  body.playMode #toolbar button,
+  body.playMode #toolbar label,
+  body.playMode #toolbar select{
+    min-height: 46px;
+    font-size: 15px;
+  }
+  body.playMode #toolbar button,
+  body.playMode #toolbar label{
+    min-width: calc(50% - 8px);
+    flex: 1 1 calc(50% - 8px);
+    padding: 10px 12px;
+    font-weight: 700;
+  }
+  body.playMode #toolbar label{
+    justify-content: space-between;
+    gap: 10px;
+  }
+  body.playMode #toolbar select{
+    width: 100%;
+    padding: 0 12px;
+  }
+  body.playMode #toolbar #btnOpenSpectator,
+  body.playMode #toolbar #btnBackToMode,
+  body.playMode #toolbar #btnTurnStart,
+  body.playMode #toolbar #btnSave,
+  body.playMode #toolbar #btnUndo,
+  body.playMode #toolbar #btnPreview,
+  body.playMode #toolbar #btnToken,
+  body.playMode #toolbar #btnCounter{
+    flex-basis: 100%;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px){
+  body.playMode #toolbar button,
+  body.playMode #toolbar label,
+  body.playMode #toolbar select{
+    min-height: 48px;
+    font-size: 14px;
+  }
+}
+
 /* ===== Remake: mobile-first adjustments (UI維持) ===== */
 @media (max-width: 1024px){
   :root{ --card-w: 150px; }

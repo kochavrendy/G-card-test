@@ -439,9 +439,32 @@ const btnBackToMode=document.getElementById('btnBackToMode');
 const btnToken=document.getElementById('btnToken');
 const btnCounter=document.getElementById('btnCounter');
 const btnCoin=document.getElementById('btnCoin');
+const btnToolbarCollapse=document.getElementById('btnToolbarCollapse');
 const deckReturnPosSel=document.getElementById('deckReturnPos'); // [patch]
 let deckReturnPos=deckReturnPosSel?deckReturnPosSel.value:'top'; // [patch]
 if(deckReturnPosSel){deckReturnPosSel.onchange=()=>{deckReturnPos=deckReturnPosSel.value;};}
+
+function setToolbarCollapsed(collapsed){
+  if(!toolbar) return;
+  const isCollapsed = !!collapsed;
+  toolbar.classList.toggle('collapsed', isCollapsed);
+  if(btnToolbarCollapse){
+    btnToolbarCollapse.setAttribute('aria-expanded', (!isCollapsed).toString());
+    btnToolbarCollapse.textContent = isCollapsed ? '▸ ツールバー' : '▾ ツールバー';
+  }
+  try{ localStorage.setItem('toolbarCollapsed', isCollapsed ? '1' : '0'); }catch(e){}
+}
+function loadToolbarCollapsed(){
+  let collapsed = false;
+  try{ collapsed = localStorage.getItem('toolbarCollapsed') === '1'; }catch(e){}
+  setToolbarCollapsed(collapsed);
+}
+if(btnToolbarCollapse){
+  btnToolbarCollapse.addEventListener('click', ()=>{
+    setToolbarCollapsed(!toolbar.classList.contains('collapsed'));
+  });
+}
+loadToolbarCollapsed();
 
 // start modal
 const startModal=document.getElementById('startModal');

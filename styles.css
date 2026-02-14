@@ -1212,6 +1212,10 @@ body.soloActive #toolbar{ right:auto !important; }
   .deckThumb{ width:96px; }
   #deckMgrPanel{ width:96vw; height:88vh; }
 
+  /* 現在のデッキ欄の末尾が下部バーに隠れないよう余白を確保 */
+  #deckPane{ padding-bottom:8px; }
+  #deckScroll{ padding-bottom:72px; }
+
   /* スマホで折りたたみ時でも展開ボタンを見失わないようにする */
   #builderFooter{ position:sticky; bottom:0; z-index:6; }
   .builderFooterHeader{ min-height:36px; }
@@ -1235,7 +1239,7 @@ body.soloActive #toolbar{ right:auto !important; }
   #builderMain{ flex-direction:column; overflow:auto; }
   /* スマホ縦画面ではカード一覧の縦幅を広げて見やすくする */
   #libPane{ min-height:76vh; }
-  #deckPane{ min-height:24vh; }
+  #deckPane{ min-height:28vh; }
 
   /* 構築エリアのカード表示はややコンパクトに */
   .libCard{ width:min(34vw, 138px); }

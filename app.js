@@ -110,6 +110,7 @@ const deckCounterEl=document.getElementById('deckCounter');
 const discardCounterEl=document.getElementById('discardCounter');
 const monsterCounterEl=document.getElementById('monsterCounter');
 const toolbar=document.getElementById('toolbar');
+const buildToast=document.getElementById('buildToast');
 // ===== Fixed UI size + auto scale =====
 let __uiScale = 1;
 let __lastStableUIScale = 1;
@@ -3011,6 +3012,22 @@ function autoLoadBackImage(){
   img.src = path;
 }
 
+
+let __buildToastTimer = null;
+function getCardLabelById(id){
+  const card = CARD_DB.find(c=>c.id===id);
+  return (card && (card.name || card.id)) ? (card.name || card.id) : String(id||'');
+}
+function showBuildToast(message){
+  if(!buildToast) return;
+  buildToast.textContent = message;
+  buildToast.classList.add('show');
+  if(__buildToastTimer) clearTimeout(__buildToastTimer);
+  __buildToastTimer = setTimeout(()=>{
+    buildToast.classList.remove('show');
+  }, 1800);
+}
+
 // ===== Deck Builder =====
 let buildMain={},buildMon={};
 // --- Deck Save/Load (構築モード) ---
@@ -3537,7 +3554,7 @@ if(libColor) libColor.addEventListener('change',renderLibrary);
 if(libType) libType.addEventListener('change',renderLibrary);
 if(libGrade) libGrade.addEventListener('change',renderLibrary);
 
-function addToBuild(id,which,count){const target=which==='monster'?buildMon:buildMain;target[id]=(target[id]||0)+count;renderDeckThumbs();updateBuildCount();}
+function addToBuild(id,which,count){const target=which==='monster'?buildMon:buildMain;target[id]=(target[id]||0)+count;renderDeckThumbs();updateBuildCount();const deckName=(which==='monster')?'怪獣デッキ':'メインデッキ';showBuildToast(`${deckName}に「${getCardLabelById(id)}」を追加`);}
 function decFromBuild(id,which){const target=which==='monster'?buildMon:buildMain;if(!target[id])return;target[id]--;if(target[id]<=0)delete target[id];renderDeckThumbs();updateBuildCount();}
 // ===== Deck Builder: sort order (怪獣→交戦→戦略, 等級昇順, 色:赤→青→緑→白, カードNo昇順) =====
 const __BUILD_TYPE_RANK = {'怪獣':0,'交戦':1,'戦略':2};

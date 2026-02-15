@@ -111,7 +111,7 @@
   #builderMain{flex:1;display:flex;gap:12px;overflow:hidden;}
   #mobileBuilderTabs{display:none;}
   #libPane{flex:1.2;display:flex;flex-direction:column;min-width:0;}
-  #deckPane{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+  #deckPane{flex:1.15;display:flex;flex-direction:column;min-width:340px;overflow:hidden;}
   #libFilter{padding:10px 12px;width:100%;background:#111;color:#eee;border:1px solid rgba(255,255,255,18);border-radius:14px;font-size:13px;margin-bottom:8px;}
 
   #libMetaBar{
@@ -1420,7 +1420,7 @@ body.playMode #toolbar label{
     padding:8px;
   }
   #builderMain{ gap:8px; overflow:auto; min-height:0; -webkit-overflow-scrolling:touch; }
-  #libPane,#deckPane{ min-height:0; }
+  #libPane,#deckPane{ min-height:0; min-width:0; }
   #libList{ gap:10px; padding:8px; }
   .libCard{ width:132px; }
   .deckThumb{ width:96px; }
@@ -1451,13 +1451,10 @@ body.playMode #toolbar label{
 
 @media (max-width: 768px) and (orientation: portrait){
   #builderMain{ flex-direction:column; overflow:auto; }
-  /* スマホ縦画面では「現在のデッキ」枠も十分な高さを確保する */
-  #libPane{ min-height:56vh; }
-  #deckPane{ min-height:52vh; }
-  #deckScroll{ min-height:46vh; }
-  /* スマホ縦画面ではカード一覧の縦幅を広げて見やすくする */
-  #libPane{ min-height:76vh; }
-  #deckPane{ min-height:28vh; }
+  /* スマホ縦画面でも「現在のデッキ」欄を十分な高さで表示する */
+  #libPane{ min-height:62vh; }
+  #deckPane{ min-height:46vh; }
+  #deckScroll{ min-height:40vh; }
 
   /* 現在のデッキ欄のカード幅を確保して視認性を上げる */
   .libCard{ width:min(34vw, 138px); }

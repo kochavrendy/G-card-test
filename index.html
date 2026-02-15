@@ -70,6 +70,44 @@
       <h1>G-CARD Director</h1>
       <button id="btnStartBuild">デッキ構築モード</button>
       <button id="btnStartPlay">プレイモード</button>
+      <button id="btnStartTools">補助ツール</button>
+    </div>
+  </div>
+
+  <div id="toolsModal" class="hidden">
+    <div id="toolsPanel" role="dialog" aria-modal="true" aria-label="補助ツール">
+      <h2>補助ツール</h2>
+      <p class="toolsLead">使いたい補助機能を選んでください。</p>
+      <div class="toolsList">
+        <button id="btnToolThreatCalc" type="button">撃退力・脅威度 自動計算</button>
+      </div>
+      <button id="btnToolsBack" type="button">◀ モード選択に戻る</button>
+    </div>
+  </div>
+
+  <div id="threatCalcModal" class="hidden">
+    <div id="threatCalcPanel" role="dialog" aria-modal="true" aria-label="撃退力脅威度の自動計算">
+      <div class="tcHeader">
+        <h2>撃退力・脅威度 自動計算</h2>
+        <button id="btnThreatCalcClose" type="button">閉じる</button>
+      </div>
+      <p class="tcLead">カードを選ぶだけで、メタデータから素の数値を自動取得します。</p>
+      <div class="tcGrid">
+        <label>怪獣カード
+          <select id="tcMonsterCard"></select>
+        </label>
+        <label>怒りカウント<input id="tcRage" type="number" inputmode="numeric" value="0"></label>
+        <label>怪獣カウンター合計<input id="tcMonsterCounter" type="number" inputmode="numeric" value="0"></label>
+        <label>戦略ゾーンのカウンター合計<input id="tcStrategyCounter" type="number" inputmode="numeric" value="0"></label>
+      </div>
+
+      <div class="tcBattleList" id="tcBattleList"></div>
+
+      <div class="tcSummary">
+        <div class="tcItem"><span>脅威度</span><strong id="tcThreatResult">0</strong></div>
+        <div class="tcItem"><span>撃退力合計</span><strong id="tcRepelResult">0</strong></div>
+        <div class="tcItem"><span>差分（撃退力-脅威度）</span><strong id="tcDiffResult">0</strong></div>
+      </div>
     </div>
   </div>
 

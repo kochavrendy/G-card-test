@@ -497,6 +497,12 @@ loadToolbarCollapsed();
 const startModal=document.getElementById('startModal');
 const btnStartBuild=document.getElementById('btnStartBuild');
 const btnStartPlay=document.getElementById('btnStartPlay');
+const btnStartTools=document.getElementById('btnStartTools');
+const toolsModal=document.getElementById('toolsModal');
+const btnToolsBack=document.getElementById('btnToolsBack');
+const btnToolThreatCalc=document.getElementById('btnToolThreatCalc');
+const threatCalcModal=document.getElementById('threatCalcModal');
+const btnThreatCalcClose=document.getElementById('btnThreatCalcClose');
 
 // apply flip layout class (for embed opponent board etc.)
 try{ if(FLIP_LAYOUT) document.body.classList.add('flipLayout'); }catch(e){}
@@ -2592,9 +2598,122 @@ function setPlayModeUI(active){
   try{ document.body.classList.toggle('playMode', !!active); }catch(e){}
 }
 
-btnStartBuild.onclick=()=>{startModal.style.display='none';openBuilder();};
-btnStartPlay.onclick=()=>{startModal.style.display='none';toolbar.classList.remove('hidden');setPlayModeUI(true);lastCoin=null;updateCoinUI();autoLoadBackImage();};
-function goBackToMode(){if(revealIsOpen()) cancelReveal(); toolbar.classList.add('hidden');setPlayModeUI(false);viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
+function initThreatCalcTool(){
+  const battleList=document.getElementById('tcBattleList');
+  const threatEl=document.getElementById('tcThreatResult');
+  const repelEl=document.getElementById('tcRepelResult');
+  const diffEl=document.getElementById('tcDiffResult');
+  const monsterSel=document.getElementById('tcMonsterCard');
+  const rageEl=document.getElementById('tcRage');
+  const monsterCounterEl=document.getElementById('tcMonsterCounter');
+  const strategyCounterEl=document.getElementById('tcStrategyCounter');
+  if(!battleList || !threatEl || !repelEl || !diffEl || !monsterSel) return;
+
+  const cardMetaMap=new Map();
+  if(typeof CARD_DB!=='undefined' && Array.isArray(CARD_DB)){
+    CARD_DB.forEach((c)=>{
+      const id=String(c && c.id ? c.id : '').replace(/\.png$/i,'');
+      if(!id || cardMetaMap.has(id)) return;
+      const meta=(typeof getMetaById==='function') ? getMetaById(id) : (c && c.meta ? c.meta : null);
+      if(meta) cardMetaMap.set(id, meta);
+    });
+  }
+
+  const byType=(type)=>{
+    const rows=[];
+    cardMetaMap.forEach((meta,id)=>{
+      if(!meta || meta.type!==type) return;
+      rows.push({
+        id,
+        name: String(meta.name || id),
+        power: Number(meta.power||0)
+      });
+    });
+    rows.sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    return rows;
+  };
+
+  const monsterCards=byType('怪獣');
+  const battleCards=byType('交戦');
+  const renderOptions=(cards)=>['<option value="">未選択</option>'].concat(cards.map((c)=>`<option value="${c.id}">${c.name}（${__fmt(c.power)}）</option>`)).join('');
+
+  monsterSel.innerHTML=renderOptions(monsterCards);
+
+  if(!battleList.dataset.ready){
+    const battleOptions=renderOptions(battleCards);
+    const rows=[];
+    for(let i=1;i<=7;i++){
+      rows.push(`
+        <div class="tcBattleRow">
+          <div class="slotLabel">交戦${i}</div>
+          <select data-tc="battleCard">${battleOptions}</select>
+          <div class="tcBaseVal" data-tc="battleBase">素:0</div>
+          <label>カウンター<input type="number" inputmode="numeric" data-tc="battleCounter" value="0"></label>
+        </div>
+      `);
+    }
+    battleList.innerHTML=rows.join('');
+    battleList.dataset.ready='1';
+  }else{
+    battleList.querySelectorAll('select[data-tc="battleCard"]').forEach((sel)=>{ sel.innerHTML=renderOptions(battleCards); });
+  }
+
+  const n=(el)=>{
+    const v=Number(el && el.value ? el.value : 0);
+    return Number.isFinite(v) ? v : 0;
+  };
+  const getPower=(id)=>{
+    if(!id) return 0;
+    const meta=cardMetaMap.get(String(id).replace(/\.png$/i,''));
+    const v=Number(meta && meta.power ? meta.power : 0);
+    return Number.isFinite(v) ? v : 0;
+  };
+
+  const update=()=>{
+    const monsterBase=getPower(monsterSel.value);
+    const threat=monsterBase + (n(rageEl)*5000) + n(monsterCounterEl);
+
+    let repel=n(strategyCounterEl);
+    const rows=battleList.querySelectorAll('.tcBattleRow');
+    rows.forEach((row)=>{
+      const battleSel=row.querySelector('select[data-tc="battleCard"]');
+      const baseEl=row.querySelector('[data-tc="battleBase"]');
+      const counterEl=row.querySelector('input[data-tc="battleCounter"]');
+      const base=getPower(battleSel ? battleSel.value : '');
+      if(baseEl) baseEl.textContent=`素:${__fmt(base)}`;
+      repel += base + n(counterEl);
+    });
+
+    const diff=repel-threat;
+    threatEl.textContent=__fmt(threat);
+    repelEl.textContent=__fmt(repel);
+    diffEl.textContent=__fmt(diff);
+  };
+
+  [monsterSel,rageEl,monsterCounterEl,strategyCounterEl].forEach(el=>{ if(el) el.oninput=update; });
+  battleList.querySelectorAll('select,input').forEach(el=>{ el.oninput=update; });
+  update();
+}
+
+
+function openToolsModal(){
+  if(startModal) startModal.style.display='none';
+  if(toolsModal) toolsModal.classList.remove('hidden');
+}
+function closeToolsModal(){ if(toolsModal) toolsModal.classList.add('hidden'); }
+function openThreatCalcModal(){
+  if(threatCalcModal) threatCalcModal.classList.remove('hidden');
+  initThreatCalcTool();
+}
+function closeThreatCalcModal(){ if(threatCalcModal) threatCalcModal.classList.add('hidden'); }
+
+btnStartBuild.onclick=()=>{closeToolsModal();closeThreatCalcModal();startModal.style.display='none';openBuilder();};
+btnStartPlay.onclick=()=>{closeToolsModal();closeThreatCalcModal();startModal.style.display='none';toolbar.classList.remove('hidden');setPlayModeUI(true);lastCoin=null;updateCoinUI();autoLoadBackImage();};
+if(btnStartTools) btnStartTools.onclick=()=>{ openToolsModal(); };
+if(btnToolsBack) btnToolsBack.onclick=()=>{ closeToolsModal(); if(startModal) startModal.style.display='flex'; };
+if(btnToolThreatCalc) btnToolThreatCalc.onclick=()=>{ openThreatCalcModal(); };
+if(btnThreatCalcClose) btnThreatCalcClose.onclick=()=>{ closeThreatCalcModal(); };
+function goBackToMode(){if(revealIsOpen()) cancelReveal(); closeToolsModal(); closeThreatCalcModal(); toolbar.classList.add('hidden');setPlayModeUI(false);viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
 
 
 // ===== embed instance (used by solo mode iframes) =====
@@ -2605,6 +2724,7 @@ if(IS_EMBED){
   setPlayModeUI(false);
   try{ if(btnBackToMode) btnBackToMode.style.display='none'; }catch(e){}
   try{ if(btnStartBuild) btnStartBuild.style.display='none'; }catch(e){}
+  try{ if(btnStartTools) btnStartTools.style.display='none'; }catch(e){}
   // keep toolbars in embedded instances, but hide spectator button (not needed)
   try{ if(btnOpenSpectator) btnOpenSpectator.style.display='none'; }catch(e){}
   // reset meta UI

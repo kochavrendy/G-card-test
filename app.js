@@ -515,8 +515,16 @@ const startVersion=document.getElementById('startVersion');
 const toolsModal=document.getElementById('toolsModal');
 const btnToolsBack=document.getElementById('btnToolsBack');
 const btnToolThreatCalc=document.getElementById('btnToolThreatCalc');
+const btnToolAreaCounter=document.getElementById('btnToolAreaCounter');
 const threatCalcModal=document.getElementById('threatCalcModal');
 const btnThreatCalcClose=document.getElementById('btnThreatCalcClose');
+const areaCounterModal=document.getElementById('areaCounterModal');
+const btnAreaCounterClose=document.getElementById('btnAreaCounterClose');
+const btnAreaCounterClosePortrait=document.getElementById('btnAreaCounterClosePortrait');
+const btnAreaCounterFlip=document.getElementById('btnAreaCounterFlip');
+const acLeftNumberCircle=document.getElementById('acLeftNumberCircle');
+const acRightNumberCircle=document.getElementById('acRightNumberCircle');
+const acNumberPicker=document.getElementById('acNumberPicker');
 
 // apply flip layout class (for embed opponent board etc.)
 try{ if(FLIP_LAYOUT) document.body.classList.add('flipLayout'); }catch(e){}
@@ -2913,13 +2921,96 @@ function closeThreatCalcModal(){
   if(picker) picker.classList.add('hidden');
 }
 
-btnStartBuild.onclick=()=>{closeToolsModal();closeThreatCalcModal();startModal.style.display='none';openBuilder();};
-btnStartPlay.onclick=()=>{closeToolsModal();closeThreatCalcModal();startModal.style.display='none';toolbar.classList.remove('hidden');setPlayModeUI(true);lastCoin=null;updateCoinUI();autoLoadBackImage();};
+let areaCounterLeftNumber=1;
+let areaCounterRightNumber=1;
+let areaCounterFlipped=false;
+let areaCounterPickingTarget=null;
+
+function initAreaCounterTool(){
+  if(!acLeftNumberCircle || !acRightNumberCircle) return;
+  const numBtns=[...document.querySelectorAll('.acNumBtn')];
+  const update=()=>{
+    acLeftNumberCircle.textContent=String(areaCounterLeftNumber);
+    acRightNumberCircle.textContent=String(areaCounterRightNumber);
+    acLeftNumberCircle.classList.toggle('isFlipped', !!areaCounterFlipped);
+    acRightNumberCircle.classList.toggle('isFlipped', !!areaCounterFlipped);
+  };
+  const openPicker=(target)=>{
+    areaCounterPickingTarget = (target==='right') ? 'right' : 'left';
+    if(acNumberPicker) acNumberPicker.classList.remove('hidden');
+  };
+  const closePicker=()=>{
+    if(acNumberPicker) acNumberPicker.classList.add('hidden');
+    areaCounterPickingTarget = null;
+  };
+
+  if(acLeftNumberCircle.dataset.bound!=='1'){
+    acLeftNumberCircle.dataset.bound='1';
+    acLeftNumberCircle.addEventListener('click',()=>openPicker('left'));
+  }
+  if(acRightNumberCircle.dataset.bound!=='1'){
+    acRightNumberCircle.dataset.bound='1';
+    acRightNumberCircle.addEventListener('click',()=>openPicker('right'));
+  }
+  numBtns.forEach((btn)=>{
+    if(btn.dataset.bound==='1') return;
+    btn.dataset.bound='1';
+    btn.addEventListener('click',()=>{
+      const n=Math.min(8,Math.max(1, Number(btn.dataset.areaNum)||1));
+      if(areaCounterPickingTarget==='right') areaCounterRightNumber=n;
+      else areaCounterLeftNumber=n;
+      update();
+      closePicker();
+    });
+  });
+  if(btnAreaCounterFlip && btnAreaCounterFlip.dataset.bound!=='1'){
+    btnAreaCounterFlip.dataset.bound='1';
+    btnAreaCounterFlip.addEventListener('click',()=>{
+      areaCounterFlipped=!areaCounterFlipped;
+      update();
+    });
+  }
+  if(acNumberPicker && acNumberPicker.dataset.bound!=='1'){
+    acNumberPicker.dataset.bound='1';
+    acNumberPicker.addEventListener('click',(e)=>{
+      if(e.target===acNumberPicker) closePicker();
+    });
+  }
+
+  update();
+}
+
+function openAreaCounterModal(){
+  if(startModal) startModal.style.display='none';
+  if(toolsModal){
+    toolsModal.classList.add('hidden');
+    toolsModal.style.removeProperty('display');
+  }
+  if(areaCounterModal){
+    areaCounterModal.classList.remove('hidden');
+    areaCounterModal.style.display='flex';
+  }
+  initAreaCounterTool();
+}
+function closeAreaCounterModal(){
+  if(areaCounterModal){
+    areaCounterModal.classList.add('hidden');
+    areaCounterModal.style.removeProperty('display');
+  }
+  if(acNumberPicker) acNumberPicker.classList.add('hidden');
+  areaCounterPickingTarget=null;
+}
+
+btnStartBuild.onclick=()=>{closeToolsModal();closeThreatCalcModal();closeAreaCounterModal();startModal.style.display='none';openBuilder();};
+btnStartPlay.onclick=()=>{closeToolsModal();closeThreatCalcModal();closeAreaCounterModal();startModal.style.display='none';toolbar.classList.remove('hidden');setPlayModeUI(true);lastCoin=null;updateCoinUI();autoLoadBackImage();};
 if(btnStartTools) btnStartTools.onclick=()=>{ openToolsModal(); };
 if(btnToolsBack) btnToolsBack.onclick=()=>{ closeToolsModal(); if(startModal) startModal.style.display='flex'; };
 if(btnToolThreatCalc) btnToolThreatCalc.onclick=()=>{ openThreatCalcModal(); };
+if(btnToolAreaCounter) btnToolAreaCounter.onclick=()=>{ openAreaCounterModal(); };
 if(btnThreatCalcClose) btnThreatCalcClose.onclick=()=>{ goBackToMode(); };
-function goBackToMode(){if(revealIsOpen()) cancelReveal(); closeToolsModal(); closeThreatCalcModal(); toolbar.classList.add('hidden');setPlayModeUI(false);viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
+if(btnAreaCounterClose) btnAreaCounterClose.onclick=()=>{ goBackToMode(); };
+if(btnAreaCounterClosePortrait) btnAreaCounterClosePortrait.onclick=()=>{ goBackToMode(); };
+function goBackToMode(){if(revealIsOpen()) cancelReveal(); closeToolsModal(); closeThreatCalcModal(); closeAreaCounterModal(); toolbar.classList.add('hidden');setPlayModeUI(false);viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
 
 
 // ===== embed instance (used by solo mode iframes) =====

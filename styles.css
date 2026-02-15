@@ -1423,6 +1423,15 @@ body.playMode #toolbar label{
   #libPane,#deckPane{ min-height:0; min-width:0; }
   #libList{ gap:10px; padding:8px; }
   .libCard{ width:132px; }
+  .libBtns{bottom:6px;left:6px;gap:6px;}
+  .libBtns button{
+    min-width:48px;
+    min-height:42px;
+    padding:6px 10px;
+    font-size:15px;
+    border-radius:8px;
+    font-weight:700;
+  }
   .deckThumb{ width:96px; }
   #deckMgrPanel{ width:96vw; height:88vh; }
 

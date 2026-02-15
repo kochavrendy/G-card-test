@@ -50,6 +50,37 @@
   #startBox h1{margin:0 0 16px;font-size:22px;}
   #startBox button{margin:6px 0;padding:10px 16px;font-size:15px;background:#444;border:1px solid #666;border-radius:6px;color:#fff;cursor:pointer;width:100%;}
   #startBox button:hover{background:#666;}
+
+#toolsModal.hidden,#threatCalcModal.hidden{display:none;}
+#toolsModal,#threatCalcModal{position:fixed;inset:0;z-index:4550;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;}
+#toolsPanel,#threatCalcPanel{background:#222;color:#eee;padding:24px 28px;border-radius:12px;box-shadow:0 0 20px #000;min-width:320px;max-width:min(92vw,820px);}
+#toolsPanel h2,#threatCalcPanel h2{margin:0 0 10px;font-size:22px;}
+.toolsLead,.tcLead{margin:0 0 14px;color:#cfd6df;font-size:14px;}
+.toolsList{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+#toolsPanel button{width:100%;}
+.tcHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.tcHeader h2{margin:0;font-size:20px;}
+.tcGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:10px;margin-bottom:12px;}
+.tcGrid label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#d9deea;}
+.tcThumb{width:72px;aspect-ratio:5/7;object-fit:cover;border-radius:8px;border:1px solid #4b5567;background:#0b0f14;margin-top:6px;}
+.tcBattleThumb{width:46px;aspect-ratio:5/7;object-fit:cover;border-radius:6px;border:1px solid #4b5567;background:#0b0f14;}
+.tcGrid input,.tcGrid select,.tcBattleRow input,.tcBattleRow select{background:#111;color:#fff;border:1px solid #555;border-radius:8px;padding:7px 8px;}
+.tcBattleList{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.tcBattleRow{display:grid;grid-template-columns:64px minmax(180px,1.3fr) 56px minmax(86px,.55fr) minmax(120px,.8fr);gap:8px;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;}
+ .tcBattleRow .slotLabel{font-weight:700;font-size:12px;color:#9ac6ff;text-align:center;}
+.tcBaseVal{font-size:12px;color:#a8d3ff;text-align:center;font-weight:700;}
+
+.tcSummary{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:8px;}
+.tcItem{background:#111a;border:1px solid #444;padding:10px;border-radius:10px;display:flex;flex-direction:column;gap:4px;}
+.tcItem span{font-size:12px;color:#b7c0d0;}
+.tcItem strong{font-size:20px;}
+@media (max-width: 760px){
+  #toolsPanel,#threatCalcPanel{padding:16px;max-width:95vw;}
+  .tcGrid{grid-template-columns:1fr;}
+  .tcBattleRow{grid-template-columns:54px 1fr 54px;}
+  .tcBattleRow .tcBaseVal{grid-column:1 / -1;}
+  .tcSummary{grid-template-columns:1fr;}
+}
   /* deck builder */
   #builder.hidden{display:none;}#builder{position:fixed;inset:0;z-index:4600;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;}
   #builderPanel{position:relative;width:92vw;height:92vh;background:#222;color:#eee;border-radius:10px;box-shadow:0 0 20px #000;padding:12px 16px;display:flex;flex-direction:column;}

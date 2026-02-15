@@ -10,6 +10,7 @@ const URL_PARAMS = new URLSearchParams(location.search);
 const IS_EMBED = URL_PARAMS.get('embed') === '1';
 const FLIP_LAYOUT = URL_PARAMS.get('flip') === '1';
 const IS_SOLO_ROOT = URL_PARAMS.get('solo_root') === '1';
+const APP_VERSION = 'v2.2.0';
 // ====== 画像DB作成 ======
 const CARD_FOLDER = 'カードリスト';
 
@@ -499,6 +500,7 @@ const startModal=document.getElementById('startModal');
 const btnStartBuild=document.getElementById('btnStartBuild');
 const btnStartPlay=document.getElementById('btnStartPlay');
 const btnStartTools=document.getElementById('btnStartTools');
+const startVersion=document.getElementById('startVersion');
 const toolsModal=document.getElementById('toolsModal');
 const btnToolsBack=document.getElementById('btnToolsBack');
 const btnToolThreatCalc=document.getElementById('btnToolThreatCalc');
@@ -3466,7 +3468,7 @@ function setMobileBuilderView(mode='lib'){
 }
 function syncMobileBuilderUI(){
   if(!mobileBuilderTabs || !builderMain) return;
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const isMobile = window.matchMedia('(max-width: 768px), (display-mode: standalone) and (orientation: portrait), (orientation: portrait) and (pointer: coarse) and (max-width: 1024px)').matches;
   mobileBuilderTabs.classList.toggle('hidden', !isMobile);
   if(!isMobile){
     builderMain.dataset.mobileView='';
@@ -3481,6 +3483,11 @@ function syncMobileBuilderUI(){
 if(btnMobileShowLib) btnMobileShowLib.addEventListener('click', ()=>setMobileBuilderView('lib'));
 if(btnMobileShowDeck) btnMobileShowDeck.addEventListener('click', ()=>setMobileBuilderView('deck'));
 window.addEventListener('resize', syncMobileBuilderUI);
+
+try{
+  if(startVersion) startVersion.textContent = `ver ${APP_VERSION}`;
+  document.title = `G-CARD Director ${APP_VERSION}`;
+}catch(e){}
 
 function openBuilder(){builder.classList.remove('hidden');renderSetBar();loadSetBarCollapsed();loadBuilderFooterCollapsed();renderLibrary();renderDeckThumbs();updateBuildCount();syncMobileBuilderUI();}
 function closeBuilder(){builder.classList.add('hidden');}

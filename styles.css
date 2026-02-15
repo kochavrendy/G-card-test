@@ -50,6 +50,7 @@
   #startBox h1{margin:0 0 16px;font-size:22px;}
   #startBox button{margin:6px 0;padding:10px 16px;font-size:15px;background:#444;border:1px solid #666;border-radius:6px;color:#fff;cursor:pointer;width:100%;}
   #startBox button:hover{background:#666;}
+#startVersion{margin:10px 0 0;font-size:12px;opacity:.78;letter-spacing:.04em;}
 
 #toolsModal.hidden,#threatCalcModal.hidden{display:none;}
 #toolsModal,#threatCalcModal{position:fixed;inset:0;z-index:4550;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;}
@@ -927,7 +928,9 @@ body.flipLayout .zone[data-zone-id="slot5"] .areaUI{
   }
 }
 
-@media (max-width: 768px) and (orientation: portrait){
+@media (max-width: 768px) and (orientation: portrait),
+       (display-mode: standalone) and (orientation: portrait),
+       (orientation: portrait) and (pointer: coarse) and (max-width: 1024px){
   #previewPanel{
     flex-direction:column;
     width:min(96vw, 560px);
@@ -1458,7 +1461,9 @@ body.playMode #toolbar label{
   .deckThumb{ width:min(30vw, 112px); }
 }
 
-@media (max-width: 768px) and (orientation: portrait){
+@media (max-width: 768px) and (orientation: portrait),
+       (display-mode: standalone) and (orientation: portrait),
+       (orientation: portrait) and (pointer: coarse) and (max-width: 1024px){
   #builderMain{ flex-direction:column; overflow:auto; }
   #mobileBuilderTabs{
     display:flex;

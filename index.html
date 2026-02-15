@@ -93,10 +93,17 @@
       </div>
       <p class="tcLead">カードを選ぶだけで、メタデータから素の数値を自動取得します。</p>
       <div class="tcGrid">
-        <label>怪獣カード
-          <select id="tcMonsterCard"></select>
-          <img id="tcMonsterImg" class="tcThumb" src="" alt="怪獣カード画像プレビュー">
-        </label>
+        <div class="tcPickerField">
+          <div class="tcFieldTitle">怪獣カード</div>
+          <button id="tcMonsterPick" class="tcPickBtn" type="button">怪獣カードを選ぶ</button>
+          <div class="tcChosenCard" id="tcMonsterChosen">
+            <img id="tcMonsterImg" class="tcThumb" src="" alt="怪獣カード画像プレビュー">
+            <div class="tcChosenMeta">
+              <div id="tcMonsterName" class="tcChosenName">未選択</div>
+              <div id="tcMonsterBase" class="tcBaseVal">素:0</div>
+            </div>
+          </div>
+        </div>
         <label>怒りカウント<input id="tcRage" type="number" inputmode="numeric" value="0"></label>
         <label>怪獣カウンター合計<input id="tcMonsterCounter" type="number" inputmode="numeric" value="0"></label>
         <label>戦略ゾーンのカウンター合計<input id="tcStrategyCounter" type="number" inputmode="numeric" value="0"></label>
@@ -109,6 +116,20 @@
         <div class="tcItem"><span>撃退力合計</span><strong id="tcRepelResult">0</strong></div>
         <div class="tcItem"><span>差分（撃退力-脅威度）</span><strong id="tcDiffResult">0</strong></div>
       </div>
+    </div>
+  </div>
+
+  <div id="tcCardPicker" class="hidden">
+    <div id="tcCardPickerPanel" role="dialog" aria-modal="true" aria-label="カード選択">
+      <div class="tcPickerHeader">
+        <h3 id="tcPickerTitle">カード選択</h3>
+        <button id="tcPickerClose" type="button">閉じる</button>
+      </div>
+      <div class="tcPickerFilters">
+        <input id="tcPickerSearch" type="text" placeholder="カード名で検索">
+        <select id="tcPickerSet"></select>
+      </div>
+      <div id="tcPickerList"></div>
     </div>
   </div>
 

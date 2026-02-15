@@ -2604,30 +2604,33 @@ function initThreatCalcTool(){
   const repelEl=document.getElementById('tcRepelResult');
   const diffEl=document.getElementById('tcDiffResult');
   const monsterSel=document.getElementById('tcMonsterCard');
+  const monsterImg=document.getElementById('tcMonsterImg');
   const rageEl=document.getElementById('tcRage');
   const monsterCounterEl=document.getElementById('tcMonsterCounter');
   const strategyCounterEl=document.getElementById('tcStrategyCounter');
   if(!battleList || !threatEl || !repelEl || !diffEl || !monsterSel) return;
 
-  const cardMetaMap=new Map();
+  const cardInfoMap=new Map();
   if(typeof CARD_DB!=='undefined' && Array.isArray(CARD_DB)){
     CARD_DB.forEach((c)=>{
       const id=String(c && c.id ? c.id : '').replace(/\.png$/i,'');
-      if(!id || cardMetaMap.has(id)) return;
+      if(!id || cardInfoMap.has(id)) return;
       const meta=(typeof getMetaById==='function') ? getMetaById(id) : (c && c.meta ? c.meta : null);
-      if(meta) cardMetaMap.set(id, meta);
+      cardInfoMap.set(id, {
+        id,
+        name: String((meta && meta.name) || (c && c.name) || id),
+        type: String((meta && meta.type) || ''),
+        power: Number((meta && meta.power) || 0),
+        src: (c && c.srcGuess) ? String(c.srcGuess) : `${CARD_FOLDER}/${id}.png`
+      });
     });
   }
 
   const byType=(type)=>{
     const rows=[];
-    cardMetaMap.forEach((meta,id)=>{
-      if(!meta || meta.type!==type) return;
-      rows.push({
-        id,
-        name: String(meta.name || id),
-        power: Number(meta.power||0)
-      });
+    cardInfoMap.forEach((info)=>{
+      if(!info || info.type!==type) return;
+      rows.push(info);
     });
     rows.sort((a,b)=>a.name.localeCompare(b.name,'ja'));
     return rows;
@@ -2636,8 +2639,13 @@ function initThreatCalcTool(){
   const monsterCards=byType('怪獣');
   const battleCards=byType('交戦');
   const renderOptions=(cards)=>['<option value="">未選択</option>'].concat(cards.map((c)=>`<option value="${c.id}">${c.name}（${__fmt(c.power)}）</option>`)).join('');
+  const getInfo=(id)=> id ? cardInfoMap.get(String(id).replace(/\.png$/i,'')) : null;
 
   monsterSel.innerHTML=renderOptions(monsterCards);
+  if(monsterImg){
+    monsterImg.src=WHITE_BACK;
+    monsterImg.onerror=()=>{ monsterImg.src=WHITE_BACK; };
+  }
 
   if(!battleList.dataset.ready){
     const battleOptions=renderOptions(battleCards);
@@ -2647,6 +2655,7 @@ function initThreatCalcTool(){
         <div class="tcBattleRow">
           <div class="slotLabel">交戦${i}</div>
           <select data-tc="battleCard">${battleOptions}</select>
+          <img class="tcBattleThumb" data-tc="battleImg" src="${WHITE_BACK}" alt="交戦カード画像プレビュー">
           <div class="tcBaseVal" data-tc="battleBase">素:0</div>
           <label>カウンター<input type="number" inputmode="numeric" data-tc="battleCounter" value="0"></label>
         </div>
@@ -2662,25 +2671,26 @@ function initThreatCalcTool(){
     const v=Number(el && el.value ? el.value : 0);
     return Number.isFinite(v) ? v : 0;
   };
-  const getPower=(id)=>{
-    if(!id) return 0;
-    const meta=cardMetaMap.get(String(id).replace(/\.png$/i,''));
-    const v=Number(meta && meta.power ? meta.power : 0);
-    return Number.isFinite(v) ? v : 0;
-  };
 
   const update=()=>{
-    const monsterBase=getPower(monsterSel.value);
+    const monsterInfo=getInfo(monsterSel.value);
+    const monsterBase=monsterInfo ? (Number.isFinite(monsterInfo.power) ? monsterInfo.power : 0) : 0;
+    if(monsterImg){
+      monsterImg.src=(monsterInfo && monsterInfo.src) ? monsterInfo.src : WHITE_BACK;
+    }
     const threat=monsterBase + (n(rageEl)*5000) + n(monsterCounterEl);
 
     let repel=n(strategyCounterEl);
     const rows=battleList.querySelectorAll('.tcBattleRow');
     rows.forEach((row)=>{
       const battleSel=row.querySelector('select[data-tc="battleCard"]');
+      const imgEl=row.querySelector('img[data-tc="battleImg"]');
       const baseEl=row.querySelector('[data-tc="battleBase"]');
       const counterEl=row.querySelector('input[data-tc="battleCounter"]');
-      const base=getPower(battleSel ? battleSel.value : '');
+      const info=getInfo(battleSel ? battleSel.value : '');
+      const base=info ? (Number.isFinite(info.power) ? info.power : 0) : 0;
       if(baseEl) baseEl.textContent=`素:${__fmt(base)}`;
+      if(imgEl) imgEl.src=(info && info.src) ? info.src : WHITE_BACK;
       repel += base + n(counterEl);
     });
 
@@ -2692,6 +2702,7 @@ function initThreatCalcTool(){
 
   [monsterSel,rageEl,monsterCounterEl,strategyCounterEl].forEach(el=>{ if(el) el.oninput=update; });
   battleList.querySelectorAll('select,input').forEach(el=>{ el.oninput=update; });
+  battleList.querySelectorAll('img[data-tc="battleImg"]').forEach(img=>{ img.onerror=()=>{ img.src=WHITE_BACK; }; });
   update();
 }
 

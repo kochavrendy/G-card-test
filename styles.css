@@ -62,9 +62,11 @@
 .tcHeader h2{margin:0;font-size:20px;}
 .tcGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:10px;margin-bottom:12px;}
 .tcGrid label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#d9deea;}
+.tcThumb{width:72px;aspect-ratio:5/7;object-fit:cover;border-radius:8px;border:1px solid #4b5567;background:#0b0f14;margin-top:6px;}
+.tcBattleThumb{width:46px;aspect-ratio:5/7;object-fit:cover;border-radius:6px;border:1px solid #4b5567;background:#0b0f14;}
 .tcGrid input,.tcGrid select,.tcBattleRow input,.tcBattleRow select{background:#111;color:#fff;border:1px solid #555;border-radius:8px;padding:7px 8px;}
 .tcBattleList{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-.tcBattleRow{display:grid;grid-template-columns:64px minmax(180px,1.4fr) minmax(90px,.6fr) minmax(120px,.8fr);gap:8px;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;}
+.tcBattleRow{display:grid;grid-template-columns:64px minmax(180px,1.3fr) 56px minmax(86px,.55fr) minmax(120px,.8fr);gap:8px;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;}
  .tcBattleRow .slotLabel{font-weight:700;font-size:12px;color:#9ac6ff;text-align:center;}
 .tcBaseVal{font-size:12px;color:#a8d3ff;text-align:center;font-weight:700;}
 
@@ -75,7 +77,7 @@
 @media (max-width: 760px){
   #toolsPanel,#threatCalcPanel{padding:16px;max-width:95vw;}
   .tcGrid{grid-template-columns:1fr;}
-  .tcBattleRow{grid-template-columns:54px 1fr;}
+  .tcBattleRow{grid-template-columns:54px 1fr 54px;}
   .tcBattleRow .tcBaseVal{grid-column:1 / -1;}
   .tcSummary{grid-template-columns:1fr;}
 }

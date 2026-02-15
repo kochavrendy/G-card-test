@@ -1451,10 +1451,43 @@ body.playMode #toolbar label{
 
 @media (max-width: 768px) and (orientation: portrait){
   #builderMain{ flex-direction:column; overflow:auto; }
-  /* スマホ縦画面でも「現在のデッキ」欄を十分な高さで表示する */
+  #mobileBuilderTabs{
+    display:flex;
+    gap:6px;
+    margin:0 0 8px;
+    position:sticky;
+    top:0;
+    z-index:7;
+    padding:6px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;
+    background:rgba(0,0,0,.45);
+    backdrop-filter: blur(2px);
+  }
+  #mobileBuilderTabs button{
+    flex:1;
+    min-height:36px;
+    border:1px solid rgba(255,255,255,.2);
+    background:#2b2b2b;
+    color:#fff;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:700;
+  }
+  #mobileBuilderTabs button.active{
+    background:linear-gradient(180deg,#1f6a9f,#14507b);
+    border-color:rgba(86,211,255,.7);
+    box-shadow:0 0 0 1px rgba(86,211,255,.35) inset;
+  }
+
+  /* 縦画面はタブ切替で片側を全面表示して、各欄の幅を最大化 */
+  #builderMain[data-mobile-view='lib'] #deckPane{ display:none; }
+  #builderMain[data-mobile-view='deck'] #libPane{ display:none; }
+
+  /* 表示中の欄は十分な高さを確保 */
   #libPane{ min-height:62vh; }
-  #deckPane{ min-height:46vh; }
-  #deckScroll{ min-height:40vh; }
+  #deckPane{ min-height:62vh; }
+  #deckScroll{ min-height:54vh; }
 
   /* 現在のデッキ欄のカード幅を確保して視認性を上げる */
   .libCard{ width:min(34vw, 138px); }

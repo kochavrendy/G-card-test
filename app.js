@@ -593,6 +593,7 @@ const btnQrCopy=document.getElementById('btnQrCopy');
 // deck saves (builder)
 const btnDeckSave=document.getElementById('btnDeckSave');
 const btnDeckLoad=document.getElementById('btnDeckLoad');
+const btnDeckReset=document.getElementById('btnDeckReset');
 const btnDeckDownload=document.getElementById('btnDeckDownload');
 const deckUploadInput=document.getElementById('deckUploadInput');
 const deckMgr=document.getElementById('deckMgr');
@@ -3013,6 +3014,32 @@ let buildMain={},buildMon={};
 // --- Deck Save/Load (構築モード) ---
 const DECKS_KEY='go_decks_v1';
 let activeDeckId=null;
+let activeDeckSnapshot='';
+
+function deckFingerprint(deck){
+  const normalize=(obj)=>Object.keys(obj||{}).sort().map(k=>`${k}:${obj[k]||0}`).join('|');
+  return `M:${normalize(deck?.main||{})}#K:${normalize(deck?.monster||{})}`;
+}
+function syncActiveDeckSnapshot(){
+  if(!activeDeckId){ activeDeckSnapshot=''; return; }
+  activeDeckSnapshot = deckFingerprint(currentDeckObj());
+}
+function isActiveDeckDirty(){
+  if(!activeDeckId || !activeDeckSnapshot) return false;
+  return deckFingerprint(currentDeckObj()) !== activeDeckSnapshot;
+}
+function askSaveBeforeDestructiveChange(message){
+  const mCnt=sumObj(buildMain), kCnt=sumObj(buildMon);
+  if(mCnt===0 && kCnt===0) return true;
+  if(confirm(`${message}\n\nOK: セーブする / キャンセル: 次へ`)){
+    const before = deckFingerprint(currentDeckObj());
+    saveDeckPrompt();
+    const after = deckFingerprint(currentDeckObj());
+    if(before===after && isActiveDeckDirty()) return false;
+    return true;
+  }
+  return confirm('保存せずに続行しますか？');
+}
 
 function safeJSONParse(s,fallback){
   try{ const v=JSON.parse(s); return (v===null||v===undefined)?fallback:v; }catch(e){ return fallback; }
@@ -3051,12 +3078,13 @@ function fmtJP(iso){
   }catch(e){ return ''; }
 }
 
-function applyDeckToBuilder(deck){
+function applyDeckToBuilder(deck, opts={}){
   buildMain = Object.assign({}, deck?.main||{});
   buildMon  = Object.assign({}, deck?.monster||{});
   renderDeckThumbs();
   updateBuildCount();
   try{ deckCodeBox.value = encodeDeck({main:buildMain, monster:buildMon}); }catch(e){}
+  if(opts && opts.syncSnapshot) syncActiveDeckSnapshot();
 }
 
 function saveDeckPrompt(){
@@ -3085,6 +3113,7 @@ function saveDeckPrompt(){
     sameName.updatedAt = now;
     activeDeckId = sameName.id;
     setDeckSaves(decks);
+    syncActiveDeckSnapshot();
     alert('上書き保存しました');
     return;
   }
@@ -3097,6 +3126,7 @@ function saveDeckPrompt(){
       cur.deck = cloneDeckObj(deck);
       cur.updatedAt = now;
       setDeckSaves(decks);
+      syncActiveDeckSnapshot();
       alert('更新保存しました');
       return;
     }
@@ -3106,6 +3136,7 @@ function saveDeckPrompt(){
   decks.unshift(entry);
   activeDeckId = entry.id;
   setDeckSaves(decks);
+  syncActiveDeckSnapshot();
   alert('保存しました（デッキ一覧に追加）');
 }
 
@@ -3206,6 +3237,17 @@ async function importDeckSavesFile(file){
 // wiring
 btnDeckSave && (btnDeckSave.onclick = ()=>saveDeckPrompt());
 btnDeckLoad && (btnDeckLoad.onclick = ()=>openDeckMgr());
+btnDeckReset && (btnDeckReset.onclick = ()=>{
+  const ok = askSaveBeforeDestructiveChange('現在のデッキをリセットします。リセット前にセーブしますか？');
+  if(!ok) return;
+  buildMain={};
+  buildMon={};
+  activeDeckId=null;
+  activeDeckSnapshot='';
+  renderDeckThumbs();
+  updateBuildCount();
+  try{ deckCodeBox.value=''; }catch(e){}
+});
 btnDeckDownload && (btnDeckDownload.onclick = ()=>downloadDeckSaves());
 btnDeckMgrClose && (btnDeckMgrClose.onclick = ()=>closeDeckMgr());
 btnDeckMgrDownload && (btnDeckMgrDownload.onclick = ()=>downloadDeckSaves());
@@ -3221,8 +3263,12 @@ deckMgrList && deckMgrList.addEventListener('click', (e)=>{
   const d = decks.find(x=>String(x.id)===String(id));
   if(act==='load'){
     if(!d){ alert('デッキが見つかりません'); renderDeckMgr(); return; }
+    if(activeDeckId && activeDeckId!==d.id && isActiveDeckDirty()){
+      const ok = askSaveBeforeDestructiveChange('現在のロード済みデッキが変更されています。別のデッキをロードする前にセーブしますか？');
+      if(!ok) return;
+    }
     activeDeckId = d.id;
-    applyDeckToBuilder(d.deck);
+    applyDeckToBuilder(d.deck, {syncSnapshot:true});
     closeDeckMgr();
     return;
   }
@@ -3246,7 +3292,7 @@ deckMgrList && deckMgrList.addEventListener('click', (e)=>{
     if(!confirm(`「${d.name||'(no name)'}」を削除しますか？`)) return;
     const next = decks.filter(x=>x.id!==d.id);
     setDeckSaves(next);
-    if(activeDeckId===d.id) activeDeckId=null;
+    if(activeDeckId===d.id){ activeDeckId=null; activeDeckSnapshot=''; }
     renderDeckMgr();
   }
 });

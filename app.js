@@ -2637,13 +2637,20 @@ function initThreatCalcTool(){
     });
   }
 
+  const compareCardsByNumber=(a,b)=>{
+    const na = (typeof __buildCardNoNum==='function') ? __buildCardNoNum(a && a.id) : 999999;
+    const nb = (typeof __buildCardNoNum==='function') ? __buildCardNoNum(b && b.id) : 999999;
+    if(na!==nb) return na-nb;
+    return String(a && a.id || '').localeCompare(String(b && b.id || ''), 'ja');
+  };
+
   const byType=(type)=>{
     const rows=[];
     cardInfoMap.forEach((info)=>{
       if(!info || info.type!==type) return;
       rows.push(info);
     });
-    rows.sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    rows.sort(compareCardsByNumber);
     return rows;
   };
 
@@ -2742,7 +2749,9 @@ function initThreatCalcTool(){
       groups.get(k).push(c);
     });
 
-    const order = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b,'ja'));
+    const order = (typeof getAvailableSetsOrder==='function')
+      ? getAvailableSetsOrder().filter(k=>groups.has(k))
+      : Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b,'ja'));
     pickerList.innerHTML = order.map(setKey=>{
       const cards = groups.get(setKey)||[];
       const thumbs = cards.map(c=>`<button class="tcPickThumb" type="button" data-card-id="${c.id}"><img src="${c.src}" alt="${c.name}" onerror="this.onerror=null;this.src='${WHITE_BACK}';"><span class="name">${c.name}</span></button>`).join('');

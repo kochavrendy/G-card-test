@@ -97,6 +97,7 @@ function hydrateCardsFromMeta(){
 hydrateCardsFromMeta();
 
 const WHITE_BACK="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO3kqE0AAAAASUVORK5CYII=";
+const CARD_BACK_SRC=`${CARD_FOLDER}/裏面.png`;
 const MAX_DUP_PER_NAME=4,MAX_SAVE_BYTES=4_500_000;const MAIN_LIMIT=50,MON_LIMIT=4;
 let backSrc=WHITE_BACK;let rageCount=0;
 
@@ -2599,6 +2600,7 @@ function setPlayModeUI(active){
 }
 
 function initThreatCalcTool(){
+  const toolFallbackSrc = CARD_BACK_SRC;
   const battleList=document.getElementById('tcBattleList');
   const threatEl=document.getElementById('tcThreatResult');
   const repelEl=document.getElementById('tcRepelResult');
@@ -2649,7 +2651,7 @@ function initThreatCalcTool(){
   const battleCards=byType('交戦');
   const getInfo=(id)=> id ? cardInfoMap.get(String(id).replace(/\.png$/i,'')) : null;
   if(monsterImg){
-    monsterImg.src=WHITE_BACK;
+    monsterImg.src=toolFallbackSrc;
     monsterImg.onerror=()=>{ monsterImg.src=WHITE_BACK; };
   }
 
@@ -2660,7 +2662,7 @@ function initThreatCalcTool(){
         <div class="tcBattleRow">
           <div class="slotLabel">交戦${i}</div>
           <button type="button" class="tcPickBtn" data-tc="battlePick" data-slot="${i-1}">交戦カードを選ぶ</button>
-          <img class="tcBattleThumb" data-tc="battleImg" src="${WHITE_BACK}" alt="交戦カード画像プレビュー">
+          <img class="tcBattleThumb" data-tc="battleImg" src="${toolFallbackSrc}" alt="交戦カード画像プレビュー">
           <div class="tcBaseVal" data-tc="battleBase">素:0</div>
           <label>カウンター<input type="number" inputmode="numeric" data-tc="battleCounter" value="0"></label>
         </div>
@@ -2777,7 +2779,7 @@ function initThreatCalcTool(){
     const monsterInfo=getInfo(picked.monster);
     const monsterBase=monsterInfo ? (Number.isFinite(monsterInfo.power) ? monsterInfo.power : 0) : 0;
     if(monsterImg){
-      monsterImg.src=(monsterInfo && monsterInfo.src) ? monsterInfo.src : WHITE_BACK;
+      monsterImg.src=(monsterInfo && monsterInfo.src) ? monsterInfo.src : toolFallbackSrc;
     }
     if(monsterNameEl){
       monsterNameEl.textContent = monsterInfo ? monsterInfo.name : '未選択';
@@ -2801,7 +2803,7 @@ function initThreatCalcTool(){
       const info=getInfo(picked.battles[idx]);
       const base=info ? (Number.isFinite(info.power) ? info.power : 0) : 0;
       if(baseEl) baseEl.textContent=`素:${__fmt(base)}`;
-      if(imgEl) imgEl.src=(info && info.src) ? info.src : WHITE_BACK;
+      if(imgEl) imgEl.src=(info && info.src) ? info.src : toolFallbackSrc;
       if(pickBtn) pickBtn.textContent = info ? info.name : `交戦${idx+1}: カードを選ぶ`;
       repel += base + n(counterEl);
     });

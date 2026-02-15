@@ -2814,7 +2814,18 @@ function initThreatCalcTool(){
     diffEl.textContent=__fmt(diff);
   };
 
-  if(monsterPickBtn){ monsterPickBtn.onclick=()=>openPicker('monster',0); }
+  const monsterChosen=document.getElementById('tcMonsterChosen');
+  const openMonsterPicker=()=>openPicker('monster',0);
+  if(monsterPickBtn){ monsterPickBtn.onclick=openMonsterPicker; }
+  if(monsterChosen){
+    monsterChosen.onclick=openMonsterPicker;
+    monsterChosen.onkeydown=(e)=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        openMonsterPicker();
+      }
+    };
+  }
   battleList.querySelectorAll('button[data-tc="battlePick"]').forEach((btn)=>{
     btn.onclick=()=>{
       const idx = Number(btn.dataset.slot||0);

@@ -1,6 +1,6 @@
   *{box-sizing:border-box;}
   html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#181818;font-family:sans-serif;}
-  :root{--ui-bg:#000a;--ui-fg:#eee;--zone-border:#00bfff88;--zone-fill:#00bfff14;--card-w:180px; --set-thumb-w:clamp(130px,18vw,220px); --set-thumb-aspect:21/11;}
+  :root{--ui-bg:#000a;--ui-fg:#eee;--zone-border:#00bfff88;--zone-fill:#00bfff14;--card-w:180px; --set-thumb-w:clamp(130px,18vw,220px); --set-thumb-aspect:21/11;--app-vh:100dvh;}
   #board{position:relative;width:100vw;height:100vh;background:#222;overflow:hidden;}
   #board::before{content:"";position:absolute;inset:0;background:url("playmat.png") center/cover no-repeat;z-index:0;transform:rotate(0deg);transform-origin:center;pointer-events:none;}
   body.flipLayout #board::before{transform:rotate(180deg);}
@@ -1058,6 +1058,7 @@ body.flipLayout .zone[data-zone-id="slot5"] .areaUI{
 #stageWrap{
   position:fixed;
   inset:0;
+  height:var(--app-vh);
   overflow:hidden;
   background:#181818;
   z-index:0;

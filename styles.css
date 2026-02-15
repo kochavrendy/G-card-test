@@ -70,7 +70,8 @@
 .tcPickerField{display:flex;flex-direction:column;gap:6px;}
 .tcFieldTitle{font-size:13px;color:#d9deea;}
 .tcPickBtn{cursor:pointer;text-align:left;}
-.tcChosenCard{display:flex;gap:10px;align-items:flex-start;padding:6px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(0,0,0,.2);}
+.tcChosenCard{display:flex;gap:10px;align-items:flex-start;padding:6px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(0,0,0,.2);cursor:pointer;}
+.tcChosenCard:focus-visible{outline:2px solid rgba(255,214,10,.8);outline-offset:2px;}
 .tcChosenMeta{display:flex;flex-direction:column;gap:4px;min-width:0;}
 .tcChosenName{font-weight:700;font-size:13px;line-height:1.35;word-break:break-word;}
 #tcCardPicker.hidden{display:none;}

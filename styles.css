@@ -52,8 +52,8 @@
   #startBox button:hover{background:#666;}
 #startVersion{margin:10px 0 0;font-size:12px;opacity:.78;letter-spacing:.04em;}
 
-#toolsModal.hidden,#threatCalcModal.hidden{display:none;}
-#toolsModal,#threatCalcModal{position:fixed;inset:0;z-index:4550;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;}
+#toolsModal.hidden,#threatCalcModal.hidden,#areaCounterModal.hidden{display:none;}
+#toolsModal,#threatCalcModal,#areaCounterModal{position:fixed;inset:0;z-index:4550;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;}
 #threatCalcModal{align-items:flex-start;overflow:auto;padding:clamp(8px,2vh,24px) 10px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
 #toolsPanel,#threatCalcPanel{background:#222;color:#eee;padding:24px 28px;border-radius:12px;box-shadow:0 0 20px #000;min-width:320px;max-width:min(92vw,820px);}
 #threatCalcPanel{width:min(92vw,820px);max-height:calc(100vh - 2 * clamp(8px,2vh,24px));max-height:calc(100dvh - 2 * clamp(8px,2vh,24px));overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
@@ -61,6 +61,102 @@
 .toolsLead,.tcLead{margin:0 0 14px;color:#cfd6df;font-size:14px;}
 .toolsList{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
 #toolsPanel button{width:100%;}
+
+#areaCounterPanel{
+  position:relative;
+  width:min(96vw,1320px);
+  height:min(94vh,860px);
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 0 28px rgba(0,0,0,.55);
+  background:#070a13;
+  color:#fff;
+  overflow:hidden;
+  background-image:url('./カードリスト/BP03.png');
+  background-size:cover;
+  background-position:center;
+}
+.acLandscapeOnly{height:100%;display:block;}
+.acCloseBtn{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:2;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  font-size:26px;
+  font-weight:900;
+  cursor:pointer;
+}
+.acBoard{
+  height:100%;
+  display:grid;
+  grid-template-columns:minmax(260px,1fr) auto minmax(260px,1fr);
+  align-items:center;
+  justify-items:center;
+  gap:28px;
+  padding:40px 36px;
+}
+.acNumberCircle{
+  min-width:min(34vw,520px);
+  min-height:min(38vh,420px);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(220px,30vw,460px);
+  font-weight:900;
+  color:#fff;
+  text-shadow:0 0 16px rgba(0,0,0,.95), 0 2px 0 #000, 2px 0 0 #000, -2px 0 0 #000, 0 -2px 0 #000;
+  transition:transform .2s ease;
+  cursor:pointer;
+  border:none;
+  background:transparent;
+  padding:0;
+}
+.acNumberCircle.isFlipped{transform:rotate(180deg);}
+#btnAreaCounterFlip{
+  font-size:42px;
+  font-weight:900;
+  padding:24px 32px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.38);
+  background:#b11616;
+  color:#fff;
+  cursor:pointer;
+}
+#acNumberPicker.hidden{display:none;}
+#acNumberPicker{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:3;
+}
+.acPickerPanel{
+  background:rgba(12,15,26,.95);
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:14px;
+  padding:16px;
+  width:min(450px,90vw);
+}
+.acPickerTitle{font-size:18px;font-weight:700;margin:0 0 12px;text-align:center;}
+.acPickerGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.acNumBtn{font-size:34px;font-weight:900;padding:16px 4px;border-radius:12px;border:1px solid rgba(255,255,255,.24);background:rgba(20,20,20,.8);color:#fff;cursor:pointer;}
+.acPortraitOnly{display:none;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;background:rgba(0,0,0,.74);padding:24px;font-size:20px;}
+@media (orientation: portrait){
+  .acLandscapeOnly{display:none;}
+  .acPortraitOnly{display:flex;}
+}
+@media (max-width: 1100px){
+  .acBoard{grid-template-columns:minmax(180px,1fr) auto minmax(180px,1fr);gap:16px;padding:24px 18px;}
+  .acNumberCircle{min-width:min(28vw,320px);min-height:min(30vh,280px);font-size:clamp(150px,24vw,280px);}
+  #btnAreaCounterFlip{font-size:32px;padding:18px 20px;}
+}
+
 .tcHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .tcHeader h2{margin:0;font-size:20px;}
 .tcGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:10px;margin-bottom:12px;}

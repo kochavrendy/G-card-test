@@ -2884,7 +2884,7 @@ btnStartPlay.onclick=()=>{closeToolsModal();closeThreatCalcModal();startModal.st
 if(btnStartTools) btnStartTools.onclick=()=>{ openToolsModal(); };
 if(btnToolsBack) btnToolsBack.onclick=()=>{ closeToolsModal(); if(startModal) startModal.style.display='flex'; };
 if(btnToolThreatCalc) btnToolThreatCalc.onclick=()=>{ openThreatCalcModal(); };
-if(btnThreatCalcClose) btnThreatCalcClose.onclick=()=>{ closeThreatCalcModal(); };
+if(btnThreatCalcClose) btnThreatCalcClose.onclick=()=>{ goBackToMode(); };
 function goBackToMode(){if(revealIsOpen()) cancelReveal(); closeToolsModal(); closeThreatCalcModal(); toolbar.classList.add('hidden');setPlayModeUI(false);viewer.classList.add('hidden');preview.classList.add('hidden');builder.classList.add('hidden');startModal.style.display='flex';}
 
 

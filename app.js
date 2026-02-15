@@ -3466,9 +3466,9 @@ function setMobileBuilderView(mode='lib'){
 }
 function syncMobileBuilderUI(){
   if(!mobileBuilderTabs || !builderMain) return;
-  const isMobileLandscape = window.matchMedia('(max-width: 768px) and (orientation: landscape)').matches;
-  mobileBuilderTabs.classList.toggle('hidden', !isMobileLandscape);
-  if(!isMobileLandscape){
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  mobileBuilderTabs.classList.toggle('hidden', !isMobile);
+  if(!isMobile){
     builderMain.dataset.mobileView='';
     return;
   }

@@ -115,10 +115,18 @@ let __uiScale = 1;
 let __lastStableUIScale = 1;
 let __lastStableStageLeft = 0;
 let __lastStableStageTop = 0;
+function syncAppViewportHeight(){
+  const vv = window.visualViewport;
+  const rawHeight = (vv && Number.isFinite(vv.height) && vv.height > 0) ? vv.height : window.innerHeight;
+  if(!Number.isFinite(rawHeight) || rawHeight <= 0) return;
+  document.documentElement.style.setProperty('--app-vh', `${Math.round(rawHeight)}px`);
+}
 function applyUIScale(){
   const rs = getComputedStyle(document.documentElement);
   const baseW = parseFloat(rs.getPropertyValue('--base-w')) || 2048;
   const baseH = parseFloat(rs.getPropertyValue('--base-h')) || 974;
+
+  syncAppViewportHeight();
 
   // ピンチズーム中は visual viewport が細かく変動し、
   // stage位置/スケールの再計算で盤面が飛ぶことがある。
@@ -159,6 +167,8 @@ function getPointerBoardPos(ev){
 }
 applyUIScale();
 window.addEventListener('resize', applyUIScale);
+window.addEventListener('orientationchange', ()=>setTimeout(applyUIScale, 0));
+window.addEventListener('pageshow', ()=>setTimeout(applyUIScale, 0));
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize', applyUIScale);
   window.visualViewport.addEventListener('scroll', applyUIScale);

@@ -53,7 +53,9 @@
 
 #toolsModal.hidden,#threatCalcModal.hidden{display:none;}
 #toolsModal,#threatCalcModal{position:fixed;inset:0;z-index:4550;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;}
+#threatCalcModal{align-items:flex-start;overflow:auto;padding:clamp(8px,2vh,24px) 10px;}
 #toolsPanel,#threatCalcPanel{background:#222;color:#eee;padding:24px 28px;border-radius:12px;box-shadow:0 0 20px #000;min-width:320px;max-width:min(92vw,820px);}
+#threatCalcPanel{width:min(92vw,820px);max-height:calc(100vh - 2 * clamp(8px,2vh,24px));overflow:auto;}
 #toolsPanel h2,#threatCalcPanel h2{margin:0 0 10px;font-size:22px;}
 .toolsLead,.tcLead{margin:0 0 14px;color:#cfd6df;font-size:14px;}
 .toolsList{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
